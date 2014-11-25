@@ -7,7 +7,7 @@ Set up instructions:
 - **1)** Compile camb without MPI so it can run serial. Compile it without the *-fopenmp* flag in the compiler line of *Makefile*
 - **2)** Install *emcee* through *$sudo pip install emcee*
 - **3)** Install the *Triangle Plot* pack through *$sudo pip install triangle_plot*
-
+- **4)** Modify in the code where camb is
 
 Table of content
 ---
