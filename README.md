@@ -1,9 +1,13 @@
-MCMaps
+#MCMaps
 ======
-Author: Arthur Eduardo da Mota Loureiro
-===
-Nov/2014
+##Author: Arthur Eduardo da Mota Loureiro
+##Nov/2014
+Set up instructions:
 ---
+-**1)** Compile camb without MPI so it can run serial. Compile it without the *-fopenmp* flag in the compiler line of *Makefile*
+-**2)** Install *emcee* through *$sudo pip install emcee*
+-**3)** Install the *Triangle Plot* pack through *$sudo pip install triangle_plot*
+
 
 Table of content
 ---
