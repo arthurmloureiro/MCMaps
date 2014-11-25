@@ -1,7 +1,7 @@
 MCMaps
 ======
-=
 Author: Arthur Eduardo da Mota Loureiro
+===
 Nov/2014
 ---
 
