@@ -19,7 +19,9 @@ Table of content
 - **se_der_merda_plota.py** - If something goes wrong, this small code plots what is left of the chains. It can also be used to check whot the chains are.
 - **input.dat** - Main input file that contains the map to be analyzed 
 - **HighLExtrapTemplate_lenspotentialCls.dat** - CAMB needs this file
+- **params_realiz.ini** - mcmaps reads this file and uses it to run camb
 
 Recent Modifications:
 ---
 - 25/11/2014 - Repository created, it still need modifications on the *fkp_class* in order to avoid unphysical power spectra
+- 26/11/2014 - Modifications on *fkp_class* made and fixed the *still running after done* problem
