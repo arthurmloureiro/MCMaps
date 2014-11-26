@@ -11,7 +11,6 @@ import numpy as np
 class fkp_init(object):
     '''
     This class contains the initial calculations for the FKP routine
-    It still needs testing
     but this is the part to be called outside the N_realz loop, since w and N are
     the same for all realizations
     Enters num_bins, n_bar (a matrix), bias 
@@ -25,10 +24,9 @@ class fkp_init(object):
         self.n_x = n_x
         self.bin_matrix = bin_matrix
         self.phsize=float(cell_size*n_x)	#physical size of the side of the (assumed square) grid
-        #n_bar_matrix = np.ones((n_x,n_x,n_x))*n_bar 	#the 3D version of n_bar
-                                # this needs change!!!!!!
+        
         largenumber = 1000
-        #		largenumber = 100
+
         self.nr = np.random.poisson(n_bar_matrix)*largenumber #the random catalog, with the same selection function n_bar, but with a lot more galaxies
         ###############################################################
         #print '\nDefining overdensity field'
@@ -45,16 +43,6 @@ class fkp_init(object):
         self.N4 = np.sum((n_bar_matrix**2.)*(self.w**4.)/(bias**4.))
         self.Pshot = ((1+self.alpha)/(self.N**2 + small)) * np.sum(n_bar_matrix*((self.w**2)/(bias**2 + small))) #shot noise, eq. 16 (PVP)kfft=np.fft.fftfreq(n_x) #FFT frequencies
 
-        #self.kfft=np.fft.fftfreq(n_x) #FFT frequencies
-        #kmin=np.amin(np.abs(self.kfft)) #the minimum frequency; must be 0
-        #kmaxfft=np.amax(np.abs(self.kfft)) #finds the Nyquist frequency
-        #kmax=np.sqrt(2.7)*kmaxfft #highest possible frequency (yes, it will be greater than the Nyquist frequency)
-        #krfft=np.abs(self.kfft[:np.argmax(np.abs(self.kfft))+1])
-        #self.krfft2=krfft**2
-        #kNy=kmaxfft #Nyquist frequency
-        #self.kNy = kNy
-        #self.k_bins=np.linspace(kmin,kmax,self.num_bins-1)
-        #self.delta_k=self.k_bins[4]-self.k_bins[3]
     
     def fkp(self,ng):
         '''
@@ -75,22 +63,6 @@ class fkp_init(object):
         #P_ret=np.zeros(self.num_bins) #initializing the Power Spectrum that will be the output of the external function
         counts=np.ones(self.num_bins) #initializing the vector that averages over modes within a bin 
         init=clock()
-        #print Fk2
-        #for i in range(len(self.kfft)):
-        #	kx2=self.kfft[i]**2
-        #	for j in range(len(self.kfft)):
-        #		ky2=self.kfft[j]**2
-
-        #		k_sum = np.sqrt(kx2 + ky2 + self.krfft2) #absolute value of k
-        #		m = np.asarray(k_sum/self.delta_k-0.000001).astype(int)
-                #m = np.asarray(k_sum/self.delta_k-0.5).astype(int)
-        #m = np.digitize(k_sum,k_bins) #finds which bin the absolute value is in         
-        #		zcounter=0
-        #		for ind in m: #iterating over the indices to attribute the power to the correct bins
-                    #print 'ind=',ind,'zcounter=',zcounter,'Pshape=',P_ret.shape
-        #			P_ret[ind]=P_ret[ind]+Fk2[i,j,zcounter]
-        #			counts[ind]=counts[ind]+1
-        #			zcounter=zcounter+1
         self.counts2 = np.einsum("aijl->a", self.bin_matrix)
         counts = np.einsum("aijl->a", self.bin_matrix)
         self.counts = counts
@@ -100,6 +72,9 @@ class fkp_init(object):
 
         #P_ret = P_ret/counts - self.Pshot #mean power on each bin and shot noise correction
         P_ret = P_ret - self.Pshot
+        for i in range(len(P_ret)):
+        	if np.sign(P_ret[i])==-1:
+        		P_ret[i]=0.0
         ###############################################################
 
         #print '\nCalculating error bars'
@@ -113,7 +88,8 @@ class fkp_init(object):
         #for i in range(len(P_ret)):
         #	rel_var2[i]=( (pifactor) * np.sum( (nbarw2 + nbarwb2/P_ret[i])**2 )) #eq. 26 from PVP, except for the V_k term, which I include a few lines ahead
         #		rel_var = pifactor*(self.N2 + 2.*self.N3*np.power(P_ret,-1.) + self.N4*np.power(P_ret,-2.))
-        rel_var = pifactor*(self.N2 + 2.*self.N3/(P_ret+small) + self.N4/(P_ret**2 + small))
+        #rel_var = pifactor*(self.N2 + 2.*self.N3/(P_ret+small) + self.N4/(P_ret**2 + small))
+        rel_var = pifactor*(self.N2*(P_ret**2) + 2.*self.N3*P_ret + self.N4)
         #self.rel_var = rel_var
         #self.rel_var2 = rel_var2
         fin=clock()
@@ -121,7 +97,7 @@ class fkp_init(object):
 
         V_k = counts/ ( (self.n_x/2.0)*self.n_x**2 + small) #this factor of volume is the fraction of modes that fell within each bin, makes more sense in this discrete case instead of 4*pi*(k**2)*(delta k)
         rel_var=rel_var/(V_k + small)
-        sigma=np.sqrt(rel_var*P_ret**2) #1-sigma error bars vector
+        sigma=np.sqrt(rel_var) #1-sigma error bars vector
 
         ###############################################################
         #k=np.zeros(len(P_ret))

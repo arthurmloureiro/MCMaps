@@ -140,8 +140,8 @@ def P_theory(q):
     for i in temp:
         out.write(i)
     out.close()
-    #os.system("~/Documents/camb/camb " + new_file + " 1>o.txt 2>e.txt")
-    os.system("~/Documents/Dropbox/Mestrado/camb/camb " + new_file + " 1>o.txt 2>e.txt")
+    os.system("~/Documents/camb/camb " + new_file + " 1>o.txt 2>e.txt")
+    #os.system("~/Documents/Dropbox/Mestrado/camb/camb " + new_file + " 1>o.txt 2>e.txt")
     #############################
     # Reading new camb file
     #############################
@@ -252,9 +252,9 @@ def ln_prior(q):
     """
     o_cdm, hubble, w,a,b = q
     ocdm_mean = 0.25
-    ocdm_des = 0.025
+    ocdm_des = 0.035
     hubble_mean	= 72.
-    hubble_des = 7.
+    hubble_des = 7.2
     #A_mean = 2.1e-9
     #A_des = 2.1e-10
     a_mean = 8.
@@ -309,9 +309,9 @@ def ln_post(q,P,sig):
 #	MCMC using the emcee code
 ################################
 ndim = 5   #number of params
-nwalkers = 50   #number of zombies?
+nwalkers = 20   #number of zombies?
 nburn = 1     #burn in
-nsteps = 300    #number of MCMC steps for each walker 
+nsteps = 100    #number of MCMC steps for each walker 
 med = np.array([0.25,70., -1.0, 8.0,0.01])	#medium of each inicial step
 desv=np.array([0.03,9., 0.4,1.,0.001])	#deviation of each initial step
 starting_guesses = np.zeros((nwalkers,ndim))	#this generates random initial steps 
@@ -322,11 +322,11 @@ print(starting_guesses)
 
 init = time()
 sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post, args=[P_data, Sigma_data], threads=4)
-chain_name = "DE_chain300_p5_w50.dat"
+chain_name = "DE_chain100_p5_w20.dat"
 f = open(chain_name, "w")
 f.close()
 
-for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=False):
+for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
 	position = np.array(result[0])
 	lnlike   = np.array(result[1])
 	f = open(chain_name, "a")
@@ -337,14 +337,13 @@ for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=Fal
         #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
 	f.close()
 
-sampler.run_mcmc(starting_guesses, nsteps)
+#sampler.run_mcmc(starting_guesses, nsteps)
 print("done")
 final = time()
 print("tempo = "+str(final-init))
 
 #emcee_trace = sampler.chain[:, nburn:, :].reshape(-1, ndim).T
 samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
-fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'],
-                      truths=[0.2538, 72.,-1., 8., 0.01])
+fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'], truths=[0.2538, 72.,-1., 8., 0.01])
 fig.savefig("fig_DEc300_p5_w50.png")
 #os.system('rm realiz*')
