@@ -1,52 +1,34 @@
 #################################################
-#################################################
 # This is the input file for the pk_fkp.py pack #
 #################################################
-#################################################
+# path to camb:
+~/Documents/camb/
 
-##############################################
-# Insert The original map file name here:
-##############################################
+# Insert The original map file name here
 map_fid.dat
 
-##############################
 # Size of the cell in h^-1Mpc
-##############################
 20.00
 
-#######################################################
 # Number of cells in the X direction (must be integer)
-#######################################################
 32
 
-#######################################################
 # Number of cells in the Y direction (must be integer)
-#######################################################
 32
 
-#######################################################
 # Number of cells in the Z direction (must be integer)
-#######################################################
 32
 
-###########################################
 # Number of realizations (must be integer)
-###########################################
 5
 
-#######
 # Bias
-#######
 1.000
 
-####################################################
 # Number of bins to estimate P(k) (must be integer)
-####################################################
 18
 
-#############################################
 # Mean number of galaxies per cell (n_bar)
-#############################################
 8
 
 ################################################
@@ -55,5 +37,31 @@ map_fid.dat
 ################################################
 1
 
+# Number of parameters (integer)
+5
 
-# MUST IMPLEMENT THE SELECTION FUNCTION HERE
+#Number of walkers (interger, must be bigger than 2*n_parameters and pair)
+12
+
+#Number of steps for each walker
+200
+
+#Burn in
+1
+
+#Number of cores to use
+4
+
+#chain file name
+DE_chain
+
+
+
+
+
+
+
+
+
+
+

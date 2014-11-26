@@ -22,8 +22,9 @@ import uuid
 ############################################################
 #	Reading the input file, the map and converting unities
 ############################################################
-map_file, cell_size, n_x, n_y, n_z, num_realiz, bias, num_bins, n_bar, realiz_type = np.loadtxt('input.dat', dtype=str)
-cell_size = float(cell_size); n_x=int(n_x); n_y=int(n_y); n_z=int(n_z); num_realiz=int(num_realiz); bias=float(bias) ; num_bins=int(num_bins); realiz_type = int(realiz_type); n_bar = float(n_bar);
+camb_path,map_file, cell_size, n_x, n_y, n_z, num_realiz, bias, num_bins, n_bar, realiz_type, ndim, nwalkers, nsteps, nburn, ncores, chain_name = np.loadtxt('input.dat', dtype=str)
+cell_size = float(cell_size); n_x=int(n_x); n_y=int(n_y); n_z=int(n_z); num_realiz=int(num_realiz); bias=float(bias) ; num_bins=int(num_bins); realiz_type = int(realiz_type); n_bar = float(n_bar); ndim = int(ndim); nwalkers=int(nwalkers); nsteps=int(nsteps); nburn = int(nburn); ncores=int(ncores)
+path = os.path.expanduser(camb_path)
 
 Map_flat = np.loadtxt(map_file)
 Map = Map_flat.reshape(n_x,n_y,n_z)
@@ -140,7 +141,7 @@ def P_theory(q):
     for i in temp:
         out.write(i)
     out.close()
-    os.system("~/Documents/camb/camb " + new_file + " 1>o.txt 2>e.txt")
+    os.system(path+"/camb " + new_file + " 1>o.txt 2>e.txt")
     #os.system("~/Documents/Dropbox/Mestrado/camb/camb " + new_file + " 1>o.txt 2>e.txt")
     #############################
     # Reading new camb file
@@ -308,10 +309,6 @@ def ln_post(q,P,sig):
 ################################
 #	MCMC using the emcee code
 ################################
-ndim = 5   #number of params
-nwalkers = 20   #number of zombies?
-nburn = 1     #burn in
-nsteps = 100    #number of MCMC steps for each walker 
 med = np.array([0.25,70., -1.0, 8.0,0.01])	#medium of each inicial step
 desv=np.array([0.03,9., 0.4,1.,0.001])	#deviation of each initial step
 starting_guesses = np.zeros((nwalkers,ndim))	#this generates random initial steps 
@@ -321,9 +318,9 @@ for i in range(nwalkers):
 print(starting_guesses)
 
 init = time()
-sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post, args=[P_data, Sigma_data], threads=4)
-chain_name = "DE_chain100_p5_w20.dat"
-f = open(chain_name, "w")
+sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post, args=[P_data, Sigma_data], threads=ncores)
+chain_name_file=chain_name + ".dat"
+f = open(chain_name_file, "w")
 f.close()
 
 for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
@@ -337,13 +334,13 @@ for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=Tru
         #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
 	f.close()
 
-#sampler.run_mcmc(starting_guesses, nsteps)
+
 print("done")
 final = time()
 print("tempo = "+str(final-init))
 
-#emcee_trace = sampler.chain[:, nburn:, :].reshape(-1, ndim).T
+
 samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
 fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'], truths=[0.2538, 72.,-1., 8., 0.01])
-fig.savefig("fig_DEc300_p5_w50.png")
-#os.system('rm realiz*')
+fig.savefig(chain_name+".png")
+os.system('rm realiz*')
