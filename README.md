@@ -26,3 +26,4 @@ Recent Modifications:
 - 25/11/2014 - Repository created, it still need modifications on the *fkp_class* in order to avoid unphysical power spectra
 - 26/11/2014 - Modifications on *fkp_class* made and fixed the *still running after done* problem
 - 26/11/2014 Modifications on the input file. Now the MCMC nwalkers, nsteps, etc are a part of the input file
+- 27/11/2014 The new *input.py* replaces *input.dat* and goes to the program through *from input import .*

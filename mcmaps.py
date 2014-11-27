@@ -19,11 +19,10 @@ import os
 import emcee
 import triangle
 import uuid
-############################################################
-#	Reading the input file, the map and converting unities
-############################################################
-camb_path,map_file, cell_size, n_x, n_y, n_z, num_realiz, bias, num_bins, n_bar, realiz_type, ndim, nwalkers, nsteps, nburn, ncores, chain_name = np.loadtxt('input.dat', dtype=str)
-cell_size = float(cell_size); n_x=int(n_x); n_y=int(n_y); n_z=int(n_z); num_realiz=int(num_realiz); bias=float(bias) ; num_bins=int(num_bins); realiz_type = int(realiz_type); n_bar = float(n_bar); ndim = int(ndim); nwalkers=int(nwalkers); nsteps=int(nsteps); nburn = int(nburn); ncores=int(ncores)
+from input import *
+#####################################################
+# the input.py file contains the initial information
+#####################################################
 path = os.path.expanduser(camb_path)
 
 Map_flat = np.loadtxt(map_file)
@@ -53,7 +52,7 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_x/2+1])+1
 ################################################################
 def n_bar_func(gridr,a_,b_):
     return a_*np.exp(-b_*gridr)
-n_bar_matrix_fid = n_bar_func(grid.grid_r, n_bar,0.01)
+n_bar_matrix_fid = n_bar_func(grid.grid_r, 8.0,0.01)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -264,15 +263,7 @@ def ln_prior(q):
     b_des = 0.008
     w_mean = -1.0
     w_des = 0.1
-    #o_cdm, hubble = q
-    #a=n_bar
-    #b=0.01
-    #if 0.05 < o_cdm < 0.5 and 40. < hubble < 90. and 3. < a < 12. and 0.005 < b < 0.015:
-    #    return 0.0
-    #return -np.inf
     pO_cdm = ln_gaussian(ocdm_mean,ocdm_des,o_cdm)
-    #if pO_cdm < 0.01:
-    #	pO_cdm = 0.01
     pH = ln_gaussian(hubble_mean, hubble_des, hubble)
     pw = ln_gaussian(w_mean,w_des,w)
     #if pH > 90.00:
@@ -319,14 +310,14 @@ print(starting_guesses)
 
 init = time()
 sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post, args=[P_data, Sigma_data], threads=ncores)
-chain_name_file=chain_name + ".dat"
+chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
 
 for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
 	position = np.array(result[0])
 	lnlike   = np.array(result[1])
-	f = open(chain_name, "a")
+	f = open(chain_name_file, "a")
 	for k in range(nwalkers):
 		for d in range(ndim):
 			print(position[k][d], sep=" ", end=" ", file=f)
@@ -342,5 +333,5 @@ print("tempo = "+str(final-init))
 
 samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
 fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'], truths=[0.2538, 72.,-1., 8., 0.01])
-fig.savefig(chain_name+".png")
+fig.savefig("fig_"+chain_name+".png")
 os.system('rm realiz*')
