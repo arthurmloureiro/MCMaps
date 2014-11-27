@@ -24,7 +24,6 @@ from input import *
 # the input.py file contains the initial information
 #####################################################
 path = os.path.expanduser(camb_path)
-
 Map_flat = np.loadtxt(map_file)
 Map = Map_flat.reshape(n_x,n_y,n_z)
 
