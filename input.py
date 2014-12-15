@@ -57,11 +57,11 @@ ncores = 4
 #[Boolean(if False, assumes the fixed fiducial value), Initial Guess, Std]:
 hubble = [True, 70., 7.0]
 omega_lambda = [False, 0.7,0.07]
-omega_matter = [True, 0.2538,0.025]
+omega_cdm = [True, 0.2538,0.025]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0., 0.001]
 w = [True, -1., 0.01]
-n_s = [False, 0.96, 0.096]
+n_s = [True, 0.96, 0.096]
 tau = [False, 0.09,0.009]
 
 
