@@ -98,20 +98,7 @@ def P_theory(q):
     """
     o_cdm = q[0]
     hubble = q[1]
-    if hubble > 100.00:
-    	hubble = 100
-    elif hubble < 40.00:
-    	hubble = 40
     w = q[2]
-    if w > 0.05:
-    	w=0.05
-    elif w < -1.20:
-    	w=-1.20
-    #A_s = q[2]
-    #if A_s > 5.e-9:
-    # 	A_s = 5e-9
-    #elif A_s < 0.2e-9:
-    #	A_s = 0.2e-9
     a = q[3]
     b = abs(q[4])
     #a = n_bar
@@ -248,56 +235,53 @@ def ln_gaussian(mean, des,x):
 	return -0.5*((mean-x)/des)**2
 
 def ln_prior(q):
-    """
+	"""
 	gaussian prior on the parameters
-    """
-    o_cdm, hubble, w,a,b = q
-    ocdm_mean = 0.25
-    ocdm_des = 0.035
-    hubble_mean	= 72.
-    hubble_des = 7.2
-    #A_mean = 2.1e-9
-    #A_des = 2.1e-10
-    a_mean = 8.
-    a_des = 1.0
-    b_mean	= 0.01
-    b_des = 0.008
-    w_mean = -1.0
-    w_des = 0.1
-    pO_cdm = ln_gaussian(ocdm_mean,ocdm_des,o_cdm)
-    pH = ln_gaussian(hubble_mean, hubble_des, hubble)
-    pw = ln_gaussian(w_mean,w_des,w)
+	"""
+	o_cdm, hubble, w,a,b = q
+	ocdm_mean = 0.25
+	ocdm_des = 0.035
+	hubble_mean	= 72.
+	hubble_des = 7.2
+	a_mean = 8.
+	a_des = 1.0
+	b_mean	= 0.01
+	b_des = 0.008
+	w_mean = -1.0
+	w_des = 0.1
+	pO_cdm = ln_gaussian(ocdm_mean,ocdm_des,o_cdm)
+	pH = ln_gaussian(hubble_mean, hubble_des, hubble)
+	pw = ln_gaussian(w_mean,w_des,w)
     #if pH > 90.00:
     #    pH = 90
-    pa = ln_gaussian(a_mean, a_des, a)
-    pb = ln_gaussian(b_mean, b_des, b)
-    if 0.05 < o_cdm < 0.5  and 40.< hubble < 90. and -1.2 < w < 0.00 and 4.< a < 12 and 0.005 < b < 0.02:	
-        return pO_cdm + pH + pw + pa + pb
-        #return 0.0 
-    return -np.inf
+	pa = ln_gaussian(a_mean, a_des, a)
+	pb = ln_gaussian(b_mean, b_des, b)
+	if 0.05 < o_cdm < 0.5  and 40.< hubble < 95. and -1.2 < w < 0.00 and 4.< a < 12. and 0.005 < b < 0.02:	
+		return pO_cdm + pH + pw + pa + pb
+	else:    
+	    return -np.inf
     
 def ln_likelihood(q,P,sig):
-    """
-    Defining gaussian likelihood
-    """
-    #o_cdm, hubble, a,b = q
-    o_cdm, hubble, w, a, b = q
-    #a=n_bar
-    #b=0.01
-    #lp = ln_prior(q)
-    #if not np.isfinite(lp):
-    #   return -np.inf
-    theory = P_theory(q)
-    varr = sig**2 + theory[2]**2 #+ theory[2]**2
-    lk = -0.5*np.sum(((P-theory[0])**2)/(varr+1e-20))*(1./num_bins) #ALTEREI AQUI!
+	"""
+	Defining gaussian likelihood
+	"""
+	#o_cdm, hubble, a,b = q
+	o_cdm, hubble, w, a, b = q
+	lp = ln_prior(q)
+	if not np.isfinite(lp):
+		return -np.inf
+	else:
+		theory = P_theory(q)
+		varr = sig**2 + theory[2]**2
+		lk = -0.5*np.sum(((P-theory[0])**2)/(varr+1e-20))*(1./num_bins) #ALTEREI AQUI!
     #print("====> ", P[1:], "\n -----> ", theory[0][1:])
-    return lk
+		return lk
 def ln_post(q,P,sig):
 	"""
 	Posterior to be sampled
 	"""
 	return ln_prior(q) + ln_likelihood(q,P,sig).real
-    
+sys.exit(-1)
 ################################
 #	MCMC using the emcee code
 ################################
