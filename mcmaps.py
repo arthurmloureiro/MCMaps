@@ -39,13 +39,15 @@ grid_bins = gr.grid3d(num_bins, num_bins, num_bins, L_x,L_y,L_z)		     # generat
 ##########################################
 #	Generating the Bins Matrix M^a_{ijl}
 ##########################################
-kk_bar = np.fft.fftfreq(n_x)
-kminbar = np.min(abs(kk_bar))
+#kk_bar = np.fft.fftfreq(n_x) 	#SE NÃO FOR CUBICO.... COMO DEFINIR ISSO AQUI????
+#kminbar = np.min(abs(kk_bar))
+nn = int(np.sqrt(n_x**2 + n_y**2 + n_z**2))
+kk_bar = np.fft.fftfreq(nn)
 kmaxbar = np.sqrt(1.7)*np.max(abs(kk_bar))
 dk_bar = kmaxbar/(num_bins+0.0001)*np.ones(num_bins)
 k_bar = (dk_bar/2)+np.linspace(0.,kmaxbar-dk_bar[2],num_bins)
-M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_x/2+1])+1.)*0.5*(np.sign(grid.grid_k[:,:,:n_x/2+1]-(k_bar[a]-dk_bar[a]/2))+1.)for a in range(len(k_bar))])
-
+M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1.)*0.5*(np.sign(grid.grid_k[:,:,:n_z/2+1]-(k_bar[a]-dk_bar[a]/2))+1.)for a in range(len(k_bar))])
+#sys.exit(-1)
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
@@ -55,7 +57,7 @@ n_bar_matrix_fid = n_bar_func(grid.grid_r, 8.0,0.01)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
-fkp_stuff = fkpc.fkp_init(num_bins,n_bar_matrix_fid,bias,cell_size,n_x,M)
+fkp_stuff = fkpc.fkp_init(num_bins,n_bar_matrix_fid,bias,cell_size,n_x,n_y,n_z,M)
 FKP = fkp_stuff.fkp(Map)
 P_data = fkp_stuff.P_ret.real
 Sigma_data = fkp_stuff.sigma.real/10 #this 1./10 factor is a problem!
