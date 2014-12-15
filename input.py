@@ -37,7 +37,7 @@ num_bins = 18
 realiz_type = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 5
+ndim = 7
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
 nwalkers = 12
@@ -54,9 +54,9 @@ ncores = 4
 ##########################
 #Cosmological parameters 
 ##########################
-#[Boolean(if False, assumes the fixed fiducial value), Initial Guess, Std]:
+#[Boolean(if False, assumes the fixed fiducial value), Mean and Std for the gaussian prior]:
 hubble = [True, 70., 7.0]
-omega_lambda = [False, 0.7,0.07]
+omega_lambda = [True, 0.7,0.07]
 omega_cdm = [True, 0.2538,0.025]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0., 0.001]

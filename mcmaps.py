@@ -94,13 +94,13 @@ def delta_x_ln(d_,sigma_,bias_):
 def P_theory(q):
 	"""
 	q = parameters
-	"""
 	o_cdm = q[0]
 	hubble1 = q[1]
 	w1 = q[2]
 	a = q[3]
 	b = abs(q[4])
 	c=q[5]
+	"""
     #a = n_bar
     #b = 0.01
 	init = time()
@@ -119,23 +119,34 @@ def P_theory(q):
 	linhas = params_file.readlines()
 	params_file.close()
 	temp=linhas
+	ct_p = 0
 	temp[0] = "output_root = %s\n" %(powername)
 	if hubble[0]==True:
-		temp[11] = "hubble         = %.4f\n" %(hubble1)
+		temp[11] = "hubble         = %.4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
 	if omega_lambda[0] == True:
-		temp[16] = "omega_lambda         = %.4f\n" %(o_lambda)
+		temp[16] = "omega_lambda         = %.4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
 	if omega_cdm[0] == True:
-		temp[15] = "omega_cdm		=  %.4f\n" %(o_cdm)
+		temp[15] = "omega_cdm      = %.4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
 	if omega_baryon[0] == True:
-		temp[14] = "omega_baryon			= %.4f\n" %(o_baryon)
+		temp[14] = "omega_baryon			= %.4f\n" %(q[ct_p])
+		ct_p = ct_p + 1	
 	if omega_neutrino[0] == True:
-		temp[17] = "omega_neutrino			= %.4f\n" %(o_neutrino)
+		temp[17] = "omega_neutrino			= %.4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
 	if w[0] == True:
-		temp[12] = "w              = %4f\n" %(w1)
+		temp[12] = "w              = %4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
 	if n_s[0] == True:
-		temp[30] = "scalar_spectral_index(1)           = %4f\n" %(n_ss)
+		temp[30] = "scalar_spectral_index(1)           = %4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
 	if tau[0] == True:
-		temp[39] = "re_optical_depth           = %4f\n" %(tauu)
+		temp[39] = "re_optical_depth           = %4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
+	a = q[ct_p]
+	b = q[ct_p+1]
     #temp[29] = " scalar_amp(1)             = %.2e\n" %(A_s)
 	out=open(new_file, 'w')
 	for i in temp:
@@ -245,41 +256,72 @@ def ln_gaussian(mean, des,x):
 	return -0.5*((mean-x)/des)**2
 
 def ln_prior(q):
-	"""
-	gaussian prior on the parameters
-	"""
-	o_cdm, hubble1, w1,a,b = q
-
-	ocdm_mean = omega_cdm[1]
-	ocdm_des = omega_cdm[2]
-	hubble_mean	= hubble[1]
-	hubble_des = hubble[2]
-	a_mean = 8.
-	a_des = 1.0
-	b_mean	= 0.01
-	b_des = 0.008
-	w_mean = -1.0
-	w_des = 0.1
-
-	
-	pO_cdm = ln_gaussian(ocdm_mean,ocdm_des,o_cdm)
-	pH = ln_gaussian(hubble_mean, hubble_des, hubble1)
-	pw = ln_gaussian(w_mean,w_des,w1)
-    #if pH > 90.00:
-    #    pH = 90
-	pa = ln_gaussian(a_mean, a_des, a)
-	pb = ln_gaussian(b_mean, b_des, b)
-	if 0.05 < o_cdm < 0.5  and 40.< hubble1 < 95. and -1.2 < w1 < 0.00 and 4.< a < 12. and 0.005 < b < 0.02:	
-		return pO_cdm + pH + pw + pa + pb
-	else:    
-	    return -np.inf
-    
+	cc = 0
+	pH,pLamb,pCDM,pBaryon,pNu,pW,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0
+	if hubble[0]==True:
+		if 40. < q[cc] < 95.:
+			pH = ln_gaussian(hubble[1],hubble[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if omega_lambda[0]==True:
+		if  0.0 < q[cc] < 1.:
+			pLamb = ln_gaussian(omega_lambda[1],omega_lambda[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if omega_cdm[0]==True:
+		if  0.05 < q[cc] < 0.6:
+			pCDM = ln_gaussian(omega_cdm[1],omega_cdm[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if omega_baryon[0]==True:
+		if  0.006 < q[cc] < 0.8:
+			pBaryon = ln_gaussian(omega_baryon[1],omega_baryon[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if omega_neutrino[0]==True:
+		if  0. < q[cc] < 0.08:
+			pNu = ln_gaussian(omega_neutrino[1],omega_neutrino[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if w[0]==True:
+		if  -1.2 < q[cc] < 0.00:
+			pW = ln_gaussian(w[1],w[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if n_s[0]==True:
+		if  0.20 < q[cc] < 1.40:
+			pN_s = ln_gaussian(n_s[1],n_s[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if tau[0]==True:
+		if  0.09 < q[cc] < 0.8:
+			pTau = ln_gaussian(tau[1],tau[2],q[cc])
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if 4. < q[cc] < 12.:
+		pN_bar = ln_gaussian(n_bar0[0],n_bar0[1],q[cc])
+		cc = cc +1
+	else:
+		return -np.inf
+	if 0.005 < q[cc] < 0.02:
+		pBB = ln_gaussian(bb[0],bb[1],q[cc])
+	else:
+		return -np.inf
+	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB
 def ln_likelihood(q,P,sig):
 	"""
 	Defining gaussian likelihood
 	"""
 	#o_cdm, hubble, a,b = q
-	o_cdm, hubble1, w1, a, b = q
+	#o_cdm, hubble1, w1, a, b = q
 	lp = ln_prior(q)
 	if not np.isfinite(lp):
 		return -np.inf
