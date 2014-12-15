@@ -10,7 +10,7 @@ camb_path = "~/Documents/camb/"
 # Map File name - The map to be analyzed 
 map_file = "map_fid.dat"
 
-#Chain file name. Saves the chain in this file if everything goes wrong and the final figure
+#Chain file name.
 chain_name = "DE_chain"
 
 # Cell physical size in Mpc h^-1
@@ -43,10 +43,24 @@ ndim = 5
 nwalkers = 12
 
 #Number of steps for each walker
-nsteps = 10
+nsteps = 2
 
 #Burn in - Chain points to be thrown away
 nburn = 1
 
 #Number of cores to paralelize the chains:
 ncores = 4
+
+#Cosmological parameters 
+#[Boolean(if False, assumes the fixed fiducial value), Initial Guess, Std]:
+hubble = [True, 70., 7.0]
+omega_lambda = [True, 0.7,0.07]
+omega_matter = [True, 0.2538,0.025]
+omega_baryon = [False, 0.0462,0.0046]
+w = [True, -1., 0.01]
+n_s = [False, 0.96, 0.096]
+tau = [False, 0.09,0.009]
+m_nu = ?
+N_eff = []
+
+
