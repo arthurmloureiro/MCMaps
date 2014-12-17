@@ -37,13 +37,13 @@ num_bins = 18
 realiz_type = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 7
+ndim = 5
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 12
+nwalkers = 10
 
 #Number of steps for each walker
-nsteps = 2
+nsteps = 50
 
 #Burn in - Chain points to be thrown away
 nburn = 1
@@ -55,13 +55,13 @@ ncores = 4
 #Cosmological parameters 
 ##########################
 #[Boolean(if False, assumes the fixed fiducial value), Mean and Std for the gaussian prior]:
-hubble = [True, 70., 7.0]
-omega_lambda = [True, 0.7,0.07]
-omega_cdm = [True, 0.2538,0.025]
+hubble = [True, 60., 7.0]
+omega_lambda = [False, 0.7,0.07]
+omega_cdm = [True, 0.20,0.025]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0., 0.001]
-w = [True, -1., 0.01]
-n_s = [True, 0.96, 0.096]
+w = [True, -.8, 0.01]
+n_s = [False, 0.96, 0.096]
 tau = [False, 0.09,0.009]
 
 

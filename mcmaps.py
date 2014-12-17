@@ -103,7 +103,6 @@ def P_theory(q):
 	"""
     #a = n_bar
     #b = 0.01
-	init = time()
 	##############################
 	# modifing camb and running it
 	##############################
@@ -121,6 +120,7 @@ def P_theory(q):
 	temp=linhas
 	ct_p = 0
 	temp[0] = "output_root = %s\n" %(powername)
+	init = time()
 	if hubble[0]==True:
 		temp[11] = "hubble         = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
@@ -145,14 +145,25 @@ def P_theory(q):
 	if tau[0] == True:
 		temp[39] = "re_optical_depth           = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
+	final = time()
+	tempo = final - init
+	#print("time final P Theory=  ", tempo)
 	a = q[ct_p]
 	b = q[ct_p+1]
     #temp[29] = " scalar_amp(1)             = %.2e\n" %(A_s)
 	out=open(new_file, 'w')
+	wtimein = time()
 	for i in temp:
 		out.write(i)
 	out.close()
+	wtimef = time()
+	wtimet = wtimef - wtimein
+	#print("Tempo para escrever arquivo do camb: ", wtimet)
+	tcambi = time()
 	os.system(path+"/camb " + new_file + " 1>o.txt 2>e.txt")
+	tcambf = time()
+	tcambtotal = tcambf - tcambi
+	#print("Tempo para rodar o CAMB = ", tcambtotal)
 	#os.system("~/Documents/Dropbox/Mestrado/camb/camb " + new_file + " 1>o.txt 2>e.txt")
 	#############################
 	# Reading new camb file
@@ -181,6 +192,7 @@ def P_theory(q):
 	######################################
 	P_all = np.zeros((num_bins, num_realiz))
 	sigma_all = np.zeros((num_bins, num_realiz))
+	timeloopi = time()
 	if realiz_type == 1:
 		#print "Doing both Gaussian + Poissonian realizations... \n"
 		for m in range(num_realiz):
@@ -240,8 +252,11 @@ def P_theory(q):
 				sigma_all[:,m] = sigma
         		#print "\nDone.\n" 
 	else:
-		#print "Error, invalid option for realization's type \n"
+		print("Error, invalid option for realization's type \n")
 		sys.exit(-1)
+	timeloopf = time()
+	timeloopt = timeloopf - timeloopi
+	#print("Tempo dos Loops = ", timeloopt)
 	P_av = (1./num_realiz)*np.sum(P_all, axis=1)
 	P_sig = np.sqrt((1./num_realiz)*(np.sum(P_all**2, axis=1))-P_av**2)
 	#P_sig =1.
@@ -322,28 +337,69 @@ def ln_likelihood(q,P,sig):
 	"""
 	#o_cdm, hubble, a,b = q
 	#o_cdm, hubble1, w1, a, b = q
+	inicial = time()
 	lp = ln_prior(q)
+	final2 = time()
+	tempo2 = final2 - inicial
+	#print("Tempo do Prior = ", tempo2)
 	if not np.isfinite(lp):
 		return -np.inf
 	else:
+		ptimei = time()
 		theory = P_theory(q)
+		ptimef = time()
+		ptimet = ptimef - ptimei
+		#print("Tempo total do P_theory = ", ptimet)
 		varr = sig**2 + theory[2]**2
 		lk = -0.5*np.sum(((P-theory[0])**2)/(varr+1e-20))*(1./num_bins) #ALTEREI AQUI!
-    #print("====> ", P[1:], "\n -----> ", theory[0][1:])
 		return lk
 def ln_post(q,P,sig):
 	"""
 	Posterior to be sampled
 	"""
 	return ln_prior(q) + ln_likelihood(q,P,sig).real
-sys.exit(-1)
+
 ################################
 #	MCMC using the emcee code
 ################################
-med = np.array([0.25,70., -1.0, 8.0,0.01])	#medium of each inicial step
-desv=np.array([0.03,9., 0.4,1.,0.001])	#deviation of each initial step
+#med = np.array([0.25,70., -1.0, 8.0,0.01])	#medium of each inicial step
+#desv=np.array([0.03,9., 0.4,1.,0.001])	#deviation of each initial step
+med=([])
+desv=([])
+if hubble[0]==True:
+	med.append(hubble[1])
+	desv.append(hubble[2])
+if omega_lambda[0]==True:
+	med.append(omega_lambda[1])
+	desv.append(omega_lambda[2])
+if omega_cdm[0]==True:
+	med.append(omega_cdm[1])
+	desv.append(omega_cdm[2])
+if omega_baryon[0]==True:
+	med.append(omega_baryon[1])
+	desv.append(omega_baryon[2])
+if omega_baryon[0]==True:
+	med.append(omega_baryon[1])
+	desv.append(omega_baryon[2])
+if omega_neutrino[0]==True:
+	med.append(omega_neutrino[1])
+	desv.append(omega_neutrino[2])
+if w[0]==True:
+	med.append(w[1])
+	desv.append(w[2])
+if n_s[0]==True:
+	med.append(n_s[1])
+	desv.append(n_s[2])
+if tau[0]==True:
+	med.append(tau[1])
+	desv.append(tau[2])
+med.append(n_bar0[0])
+med.append(bb[0])
+desv.append(n_bar0[1])
+desv.append(bb[1])
+med = np.array(med) ;  desv = np.array(desv)
 starting_guesses = np.zeros((nwalkers,ndim))	#this generates random initial steps 
-												#for each walker
+
 for i in range(nwalkers):
     starting_guesses[i] = np.random.normal(med,desv)
 print(starting_guesses)
