@@ -56,11 +56,11 @@ ncores = 4
 ##########################
 #[Boolean(if False, assumes the fixed fiducial value), Mean and Std for the gaussian prior]:
 hubble = [True, 60., 7.0]
-omega_lambda = [False, 0.7,0.07]
-omega_cdm = [True, 0.20,0.025]
+omega_lambda = [False, 0.7,0.2]
+omega_cdm = [True, 0.20,0.10]
 omega_baryon = [False, 0.0462,0.0046]
-omega_neutrino = [False, 0., 0.001]
-w = [True, -.8, 0.01]
+omega_neutrino = [False, 0.001, 0.01]
+w = [True, -1.0, 1.0]
 n_s = [False, 0.96, 0.096]
 tau = [False, 0.09,0.009]
 

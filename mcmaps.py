@@ -292,31 +292,31 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if omega_baryon[0]==True:
-		if  0.006 < q[cc] < 0.8:
+		if  0.006 < q[cc] < 0.1:
 			pBaryon = ln_gaussian(omega_baryon[1],omega_baryon[2],q[cc])
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_neutrino[0]==True:
-		if  0. < q[cc] < 0.08:
+		if  0. < q[cc] < 0.02:
 			pNu = ln_gaussian(omega_neutrino[1],omega_neutrino[2],q[cc])
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if w[0]==True:
-		if  -1.2 < q[cc] < 0.00:
+		if  -2.0 < q[cc] < -0.3333:
 			pW = ln_gaussian(w[1],w[2],q[cc])
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if n_s[0]==True:
-		if  0.20 < q[cc] < 1.40:
+		if  0.80 < q[cc] < 1.20:
 			pN_s = ln_gaussian(n_s[1],n_s[2],q[cc])
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if tau[0]==True:
-		if  0.09 < q[cc] < 0.8:
+		if  0.04 < q[cc] < 0.2:
 			pTau = ln_gaussian(tau[1],tau[2],q[cc])
 		else: 
 			return -np.inf
