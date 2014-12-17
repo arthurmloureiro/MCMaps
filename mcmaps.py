@@ -378,9 +378,6 @@ if omega_cdm[0]==True:
 if omega_baryon[0]==True:
 	med.append(omega_baryon[1])
 	desv.append(omega_baryon[2])
-if omega_baryon[0]==True:
-	med.append(omega_baryon[1])
-	desv.append(omega_baryon[2])
 if omega_neutrino[0]==True:
 	med.append(omega_neutrino[1])
 	desv.append(omega_neutrino[2])
@@ -428,6 +425,6 @@ print("tempo = "+str(final-init))
 
 
 samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
-fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'], truths=[0.2538, 72.,-1., 8., 0.01])
-fig.savefig("fig_"+chain_name+".png")
+#fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'], truths=[0.2538, 72.,-1., 8., 0.01])
+#fig.savefig("fig_"+chain_name+".png")
 os.system('rm realiz*')
