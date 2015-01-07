@@ -8,10 +8,10 @@
 camb_path = "~/Documents/camb/"
 
 # Map File name - The map to be analyzed 
-map_file = "map_fid.dat"
+map_file = "map_fid_new.dat"
 
 #Chain file name.
-chain_name = "10_parameters_chain"
+chain_name = "4_parameters_chain_mcmc"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -37,13 +37,13 @@ num_bins = 18
 realiz_type = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 10
+ndim = 4
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 40
+nwalkers = 10
 
 #Number of steps for each walker
-nsteps = 1250
+nsteps = 500
 
 #Burn in - Chain points to be thrown away
 nburn = 1
@@ -54,14 +54,14 @@ ncores = 4
 ##########################
 #Cosmological parameters 
 ##########################
-#[Boolean(if False, assumes the fixed fiducial value), Mean and Std for the gaussian prior]:
+#[Boolean(if False, assumes the fixed fiducial value), Mean, Std for the gaussian prior]:
 hubble = [True, 60., 7.0]
-omega_lambda = [True, 0.7,0.2]
+omega_lambda = [False, 0.7,0.2]
 omega_cdm = [True, 0.20,0.10]
-omega_baryon = [True, 0.0462,0.0046]
-omega_neutrino = [True, 0.001, 0.01]
-w = [True, -1.0, 1.0]
-n_s = [True, 0.96, 0.096]
-tau = [True, 0.09,0.009]
+omega_baryon = [False, 0.0462,0.0046]
+omega_neutrino = [False, 0.001, 0.01]
+w = [False, -1.0, 1.0]
+n_s = [False, 0.96, 0.096]
+tau = [False, 0.09,0.009]
 
 

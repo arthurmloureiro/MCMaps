@@ -40,8 +40,7 @@ grid_bins = gr.grid3d(num_bins, num_bins, num_bins, L_x,L_y,L_z)		     # generat
 ##########################################
 #	Generating the Bins Matrix M^a_{ijl}
 ##########################################
-#kk_bar = np.fft.fftfreq(n_x) 	#SE NÃO FOR CUBICO.... COMO DEFINIR ISSO AQUI????
-#kminbar = np.min(abs(kk_bar))
+
 nn = int(np.sqrt(n_x**2 + n_y**2 + n_z**2))
 kk_bar = np.fft.fftfreq(nn)
 kmaxbar = np.sqrt(1.7)*np.max(abs(kk_bar))
@@ -52,7 +51,7 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-n_bar_matrix_fid = n_bar_func(grid.grid_r, 8.0,0.01)
+n_bar_matrix_fid = n_bar_func(grid.grid_r, 8.0,0.04)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -60,6 +59,18 @@ fkp_stuff = fkpc.fkp_init(num_bins,n_bar_matrix_fid,bias,cell_size,n_x,n_y,n_z,M
 FKP = fkp_stuff.fkp(Map)
 P_data = fkp_stuff.P_ret.real
 Sigma_data = fkp_stuff.sigma.real/10 #this 1./10 factor is a problem!
+
+#kk,pp = np.loadtxt("fid_new_matterpower.dat", unpack=1)
+#pl.figure()
+#pl.loglog()
+#pl.xlim(1E-3,2.0)
+#pl.ylim(5E2,1E5)
+#pl.plot(kk,pp)
+#pl.errorbar(k_bar*(2.*np.pi*n_x/L_x),P_data,yerr=Sigma_data,label='Mean Estimated P(k)')
+#pl.axvline(x=np.max(np.max(grid.k_x)*(2.*np.pi*n_x/L_x)),color='k',label='Nyquist f.')
+#pl.show()
+#sys.exit(-1)
+
 ##############################################################
 #	Let us difine the **p.d.f.** s and some useful functions:
 ##############################################################
@@ -131,10 +142,10 @@ def P_theory(q):
 		temp[15] = "omega_cdm      = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if omega_baryon[0] == True:
-		temp[14] = "omega_baryon			= %.4f\n" %(q[ct_p])
+		temp[14] = "omega_baryon   = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1	
 	if omega_neutrino[0] == True:
-		temp[17] = "omega_neutrino			= %.4f\n" %(q[ct_p])
+		temp[17] = "omega_neutrino = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if w[0] == True:
 		temp[12] = "w              = %4f\n" %(q[ct_p])
@@ -187,6 +198,7 @@ def P_theory(q):
 	# Generating the selection function matrix
 	###########################################
 	n_bar_matrix = n_bar_func(grid.grid_r,a,b)
+	fkp_mcmc = fkpc.fkp_init(num_bins,n_bar_matrix,bias,cell_size,n_x,n_y,n_z, M)
 	######################################
 	# here goes the realization's loop
 	######################################
@@ -218,9 +230,9 @@ def P_theory(q):
 				#                  FKP                   #
 				##########################################
 				#print m
-				FKP = fkp_stuff.fkp(N_r)
-				P_all[:,m] = fkp_stuff.P_ret
-				sigma_all[:,m] = fkp_stuff.sigma
+				FKP = fkp_mcmc.fkp(N_r)
+				P_all[:,m] = fkp_mcmc.P_ret.real
+				sigma_all[:,m] = fkp_mcmc.sigma.real
 				#print m
 		
 		#print "\nDone.\n"
@@ -244,10 +256,10 @@ def P_theory(q):
 				N_r = np.random.poisson(n_bar_matrix*(1.+delta_xr))#*(cell_size**3.))			     # This is the final galaxy Map
 				#N_i = np.random.poisson(n_bar_matrix*(1.+delta_xi))#*(cell_size**3.))
                 
-				FKP = fkp_stuff.fkp(N_r)
+				FKP = fkp_mcmc.fkp(N_r)
                 
-				P = fkp_stuff.P_ret
-				sigma = fkp_stuff.sigma
+				P = fkp_mcmc.P_ret.real
+				sigma = fkp_mcmc.sigma.real
 				P_all[:,m] = P
 				sigma_all[:,m] = sigma
         		#print "\nDone.\n" 
@@ -326,7 +338,7 @@ def ln_prior(q):
 		cc = cc +1
 	else:
 		return -np.inf
-	if 0.005 < q[cc] < 0.02:
+	if 0.005 < q[cc] < 0.08:
 		pBB = ln_gaussian(bb[0],bb[1],q[cc])
 	else:
 		return -np.inf
@@ -407,7 +419,8 @@ chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
 
-for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
+#for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
+for result in sampler.run_mcmc(starting_guesses, N=200):
 	position = np.array(result[0])
 	lnlike   = np.array(result[1])
 	f = open(chain_name_file, "a")

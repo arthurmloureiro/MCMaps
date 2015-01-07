@@ -7,12 +7,12 @@
 ##############################################
 # Insert The original map file name here:
 ##############################################
-fid2_matterpower.dat
+fid_new_matterpower.dat
 
 ##############################
 # Size of the cell in h^-1Mpc
 ##############################
-10.00
+20.00
 
 #######################################################
 # Number of cells in the X direction (must be integer)

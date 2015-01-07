@@ -13,18 +13,21 @@ class fkp_init(object):
     This class contains the initial calculations for the FKP routine
     but this is the part to be called outside the N_realz loop, since w and N are
     the same for all realizations
-    Enters num_bins, n_bar (a matrix), bias 
-    and the number of cells of the cubic map    
+    Enters num_bins, n_bar (matrix), bias 
+    n_x,n_y, n_z and the bin_matrix
     '''
-    def __init__(self,num_bins,n_bar_matrix,bias,cell_size,n_x,bin_matrix):    
+    def __init__(self,num_bins,n_bar_matrix,bias,cell_size,n_x,n_y,n_z,bin_matrix):    
         self.num_bins = num_bins
         self.n_bar_matrix = n_bar_matrix
         self.bias = bias
         self.cell_size = cell_size
         self.n_x = n_x
+        self.n_y = n_y
+        self.n_z = n_z
         self.bin_matrix = bin_matrix
-        self.phsize=float(cell_size*n_x)	#physical size of the side of the (assumed square) grid
-        
+        self.phsize_x=float(cell_size*n_x)	#physical size of the side of the (assumed square) grid
+        self.phsize_y=float(cell_size*n_y)
+        self.phsize_z=float(cell_size*n_z)
         largenumber = 1000
 
         self.nr = np.random.poisson(n_bar_matrix)*largenumber #the random catalog, with the same selection function n_bar, but with a lot more galaxies
@@ -33,8 +36,9 @@ class fkp_init(object):
 
         #definitions from Percival, Verde & Peacock 2004 (PVP)
         #the units in this subroutine are NOT physical: volume = (number of cells)^3
-        small = 1e-20
-        self.Pi = 5000.0*((n_x/self.phsize)**3) # initial guess for the power spectrum (arbitrary)
+        small = 1e-25
+        #self.Pi = 5000.0*((n_x/self.phsize)**3) # initial guess for the power spectrum (arbitrary)
+        self.Pi = 5000.0*(n_x/self.phsize_x)*(n_y/self.phsize_y)*(n_z/self.phsize_z)
         self.w = ((bias**2)*self.Pi) / (1.0+n_bar_matrix*self.Pi*(bias**2)) #weights according to eq.28 (in PVP)
         self.alpha = 1.0/largenumber #alpha in PVP
         self.N = np.sqrt(np.sum((n_bar_matrix**2)*(self.w**2))) #normalization given by eq.7 (PVP)
@@ -48,7 +52,7 @@ class fkp_init(object):
         '''
         This is the FKP function itself, only entry is the galaxy map
         '''
-        small = 1e-20
+        small = 1e-25
         self.F=(self.w/(self.N*self.bias +small)) * (ng-self.alpha*self.nr) #overdensity field, eq. 6 in PVP
         ###############################################################
 
@@ -95,22 +99,20 @@ class fkp_init(object):
         fin=clock()
         #print '---took',fin-init,'seconds'
 
-        V_k = counts/ ( (self.n_x/2.0)*self.n_x**2 + small) #this factor of volume is the fraction of modes that fell within each bin, makes more sense in this discrete case instead of 4*pi*(k**2)*(delta k)
+        #V_k = counts/ ( (self.n_x/2.0)*self.n_x**2 + small) #this factor of volume is the fraction of modes that fell within each bin, makes more sense in this discrete case instead of 4*pi*(k**2)*(delta k)
+        V_k = counts/((self.n_x*self.n_y)*(self.n_z/2.)+small) 
         rel_var=rel_var/(V_k + small)
-        sigma=np.sqrt(rel_var) #1-sigma error bars vector
-
-        ###############################################################
-        #k=np.zeros(len(P_ret))
-        #for i in range(len(self.k_bins)-1): #power in the center of the bin
-        #		k[i]=(self.k_bins[i]+self.k_bins[i+1])/2.0
+        sigma=np.sqrt(rel_var).real #1-sigma error bars vector
 
         #changing to physical units
-
-        P_ret=P_ret*((self.phsize/self.n_x)**3) 
+        #P_ret=P_ret*((self.phsize/self.n_x)**3) 
+        P_ret=P_ret*(self.phsize_x/self.n_x)*(self.phsize_y/self.n_y)*(self.phsize_z/self.n_z)
         #P_ret2 = P_ret2*((self.phsize/self.n_x)**3)
-        self.Pshot_phys=self.Pshot*((self.phsize/self.n_x)**3) 
+        #self.Pshot_phys=self.Pshot*((self.phsize/self.n_x)**3) 
+        self.Pshot_phys=self.Pshot*(self.phsize_x/self.n_x)*(self.phsize_y/self.n_y)*(self.phsize_z/self.n_z)
         #k=k*(2*np.pi*self.n_x/self.phsize)
-        sigma=sigma*((self.phsize/self.n_x)**3)
+        #sigma=sigma*((self.phsize/self.n_x)**3)
+        sigma=sigma*(self.phsize_x/self.n_x)*(self.phsize_y/self.n_y)*(self.phsize_z/self.n_z)
         #eliminating the first 2 and last value, which are problematic, should be fixed
         self.P_ret=np.abs(P_ret)
         #self.P_ret2=P_ret2[1:]
