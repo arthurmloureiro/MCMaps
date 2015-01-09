@@ -56,7 +56,7 @@ n_bar_matrix_fid = n_bar_func(grid.grid_r, 8.0,0.04)
 #	FKP of the data to get the P_data(k)
 #########################################
 fkp_stuff = fkpc.fkp_init(num_bins,n_bar_matrix_fid,bias,cell_size,n_x,n_y,n_z,M)
-FKP = fkp_stuff.fkp(Map)
+FKP1 = fkp_stuff.fkp(Map)
 P_data = fkp_stuff.P_ret.real
 Sigma_data = fkp_stuff.sigma.real/10 #this 1./10 factor is a problem!
 
@@ -230,7 +230,7 @@ def P_theory(q):
 				#                  FKP                   #
 				##########################################
 				#print m
-				FKP = fkp_mcmc.fkp(N_r)
+				FKP2 = fkp_mcmc.fkp(N_r)
 				P_all[:,m] = fkp_mcmc.P_ret.real
 				sigma_all[:,m] = fkp_mcmc.sigma.real
 				#print m
@@ -280,7 +280,7 @@ def P_theory(q):
 #	Baysian functions: prior, likelihood and posterior
 ########################################################
 def ln_gaussian(mean, des,x):
-	return -0.5*((mean-x)/des)**2
+	return -0.5*((x-mean)/des)**2
 
 def ln_prior(q):
 	cc = 0
@@ -343,7 +343,7 @@ def ln_prior(q):
 	else:
 		return -np.inf
 	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB
-def ln_likelihood(q,P,sig):
+def ln_likelihood(q,P_d,sig_d):
 	"""
 	Defining gaussian likelihood
 	"""
@@ -362,14 +362,14 @@ def ln_likelihood(q,P,sig):
 		ptimef = time()
 		ptimet = ptimef - ptimei
 		#print("Tempo total do P_theory = ", ptimet)
-		varr = sig**2 + theory[2]**2
-		lk = -0.5*np.sum(((P-theory[0])**2)/(varr+1e-20))*(1./num_bins) #ALTEREI AQUI!
+		varr = sig_d**2 + theory[2]**2
+		lk = -0.5*np.sum(((P_d-theory[0])**2)/(varr+1e-20))*(1./num_bins) #ALTEREI AQUI!
 		return lk
-def ln_post(q,P,sig):
+def ln_post(q,P_d,sig_d):
 	"""
 	Posterior to be sampled
 	"""
-	return ln_prior(q) + ln_likelihood(q,P,sig).real
+	return ln_prior(q) + ln_likelihood(q,P_d,sig_d).real
 
 ################################
 #	MCMC using the emcee code
@@ -420,24 +420,26 @@ f = open(chain_name_file, "w")
 f.close()
 
 #for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
-for result in sampler.run_mcmc(starting_guesses, N=200):
-	position = np.array(result[0])
-	lnlike   = np.array(result[1])
-	f = open(chain_name_file, "a")
-	for k in range(nwalkers):
-		for d in range(ndim):
-			print(position[k][d], sep=" ", end=" ", file=f)
-		print(lnlike[k], file=f)
+#for result in sampler.run_mcmc(starting_guesses, N=200):
+#	position = np.array(result[0])
+#	lnlike   = np.array(result[1])
+#	f = open(chain_name_file, "a")
+#	for k in range(nwalkers):
+#		for d in range(ndim):
+#			print(position[k][d], sep=" ", end=" ", file=f)
+#		print(lnlike[k], file=f)
         #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
-	f.close()
+#	f.close()
 
-
+sampler.run_mcmc(starting_guesses, N=nsteps)
 print("done")
 final = time()
 print("tempo = "+str(final-init))
 
-
-samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
-#fig = triangle.corner(samples,labels=["$\Omega_{cdm}$", "$H_0$",'$w$', '$n_0$', 'b'], truths=[0.2538, 72.,-1., 8., 0.01])
+print("Mean acceptance fraction: {0:.3f}" .format(np.mean(sampler.acceptance_fraction)))
+#samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
+samples = sampler.flatchain
+np.savetxt(chain_name_file, samples)
+#fig = triangle.corner(samples,labels=["$H_0$","$\Omega_{cdm}$",'$n_0$', 'b'], truths=[72.,0.2538,-1., 8., 0.04])
 #fig.savefig("fig_"+chain_name+".png")
 os.system('rm realiz*')

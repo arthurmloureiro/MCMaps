@@ -8,10 +8,10 @@
 camb_path = "~/Documents/camb/"
 
 # Map File name - The map to be analyzed 
-map_file = "map_fid_new.dat"
+map_file = "map_TESTE.dat"
 
 #Chain file name.
-chain_name = "4_parameters_chain_mcmc"
+chain_name = "TESTE_chain_mcmc"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -43,19 +43,19 @@ ndim = 4
 nwalkers = 10
 
 #Number of steps for each walker
-nsteps = 500
+nsteps = 100
 
 #Burn in - Chain points to be thrown away
 nburn = 1
 
 #Number of cores to paralelize the chains:
-ncores = 4
+ncores = 2
 
 ##########################
 #Cosmological parameters 
 ##########################
 #[Boolean(if False, assumes the fixed fiducial value), Mean, Std for the gaussian prior]:
-hubble = [True, 60., 7.0]
+hubble = [True, 65., 10.0]
 omega_lambda = [False, 0.7,0.2]
 omega_cdm = [True, 0.20,0.10]
 omega_baryon = [False, 0.0462,0.0046]
