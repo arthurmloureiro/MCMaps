@@ -51,14 +51,14 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-n_bar_matrix_fid = n_bar_func(grid.grid_r, 8.0,0.04)
+n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.04)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
 fkp_stuff = fkpc.fkp_init(num_bins,n_bar_matrix_fid,bias,cell_size,n_x,n_y,n_z,M)
 FKP1 = fkp_stuff.fkp(Map)
 P_data = fkp_stuff.P_ret.real
-Sigma_data = fkp_stuff.sigma.real/10 #this 1./10 factor is a problem!
+Sigma_data = fkp_stuff.sigma.real
 
 #kk,pp = np.loadtxt("fid_new_matterpower.dat", unpack=1)
 #pl.figure()
@@ -156,11 +156,18 @@ def P_theory(q):
 	if tau[0] == True:
 		temp[39] = "re_optical_depth           = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
+	if n_bar0[0] == True:
+		a = q[ct_p]
+		ct_p = ct_p + 1
+	else:
+		a = n_bar0[1]
+	if bb[0] == True:
+		b = q[ct_p]
+	else:
+		b = bb[1]
 	final = time()
 	tempo = final - init
 	#print("time final P Theory=  ", tempo)
-	a = q[ct_p]
-	b = q[ct_p+1]
     #temp[29] = " scalar_amp(1)             = %.2e\n" %(A_s)
 	out=open(new_file, 'w')
 	wtimein = time()
@@ -197,7 +204,7 @@ def P_theory(q):
 	###########################################
 	# Generating the selection function matrix
 	###########################################
-	n_bar_matrix = n_bar_func(grid.grid_r,a,b)
+	n_bar_matrix = selection_func(grid.grid_r,a,b)
 	fkp_mcmc = fkpc.fkp_init(num_bins,n_bar_matrix,bias,cell_size,n_x,n_y,n_z, M)
 	######################################
 	# here goes the realization's loop
@@ -287,61 +294,73 @@ def ln_prior(q):
 	pH,pLamb,pCDM,pBaryon,pNu,pW,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0
 	if hubble[0]==True:
 		if 40. < q[cc] < 95.:
-			pH = ln_gaussian(hubble[1],hubble[2],q[cc])
+			#pH = ln_gaussian(hubble[1],hubble[2],q[cc])
+			pH=0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_lambda[0]==True:
 		if  0.0 < q[cc] < 1.:
-			pLamb = ln_gaussian(omega_lambda[1],omega_lambda[2],q[cc])
+			#pLamb = ln_gaussian(omega_lambda[1],omega_lambda[2],q[cc])
+			pLamb = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_cdm[0]==True:
 		if  0.05 < q[cc] < 0.6:
-			pCDM = ln_gaussian(omega_cdm[1],omega_cdm[2],q[cc])
+			#pCDM = ln_gaussian(omega_cdm[1],omega_cdm[2],q[cc])
+			pCDM = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_baryon[0]==True:
 		if  0.006 < q[cc] < 0.1:
-			pBaryon = ln_gaussian(omega_baryon[1],omega_baryon[2],q[cc])
+			#pBaryon = ln_gaussian(omega_baryon[1],omega_baryon[2],q[cc])
+			pBaryon = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_neutrino[0]==True:
 		if  0. < q[cc] < 0.02:
-			pNu = ln_gaussian(omega_neutrino[1],omega_neutrino[2],q[cc])
+			#pNu = ln_gaussian(omega_neutrino[1],omega_neutrino[2],q[cc])
+			pNu = 0.0
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if w[0]==True:
 		if  -2.0 < q[cc] < -0.3333:
-			pW = ln_gaussian(w[1],w[2],q[cc])
+			#pW = ln_gaussian(w[1],w[2],q[cc])
+			pW = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if n_s[0]==True:
 		if  0.80 < q[cc] < 1.20:
-			pN_s = ln_gaussian(n_s[1],n_s[2],q[cc])
+			#pN_s = ln_gaussian(n_s[1],n_s[2],q[cc])
+			pN_s =0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if tau[0]==True:
 		if  0.04 < q[cc] < 0.2:
-			pTau = ln_gaussian(tau[1],tau[2],q[cc])
+			#pTau = ln_gaussian(tau[1],tau[2],q[cc])
+			pTau =0.
 		else: 
 			return -np.inf
 		cc = cc + 1
-	if 4. < q[cc] < 12.:
-		pN_bar = ln_gaussian(n_bar0[0],n_bar0[1],q[cc])
+	if n_bar0[0]==True:
+		if 4. < q[cc] < 12.:
+			#pN_bar = ln_gaussian(n_bar0[1],n_bar0[2],q[cc])
+			pN_bar = 0.
+		else:
+			return -np.inf
 		cc = cc +1
-	else:
-		return -np.inf
-	if 0.005 < q[cc] < 0.08:
-		pBB = ln_gaussian(bb[0],bb[1],q[cc])
-	else:
-		return -np.inf
+	if bb[0]==True:
+		if 0.005 < q[cc] < 0.08:
+			#pBB = ln_gaussian(bb[1],bb[2],q[cc])
+			pBB = 0.
+		else:
+			return -np.inf	
 	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB
 def ln_likelihood(q,P_d,sig_d):
 	"""
@@ -362,14 +381,16 @@ def ln_likelihood(q,P_d,sig_d):
 		ptimef = time()
 		ptimet = ptimef - ptimei
 		#print("Tempo total do P_theory = ", ptimet)
-		varr = sig_d**2 + theory[2]**2
-		lk = -0.5*np.sum(((P_d-theory[0])**2)/(varr+1e-20))*(1./num_bins) #ALTEREI AQUI!
+		varr = sig_d**2 + theory[1]**2 #Changed for the statistical error bars!
+		lk = -0.5*np.sum(((P_d-theory[0])**2)/(varr+1e-20))*(1./num_bins)
+		#nomeee = "power"+str(lk+lp)+".dat"
+		#np.savetxt(nomeee, np.c_[k_bar*(2.*np.pi*n_x/L_x),P_d,theory[0],theory[1]])
 		return lk
 def ln_post(q,P_d,sig_d):
 	"""
 	Posterior to be sampled
 	"""
-	return ln_prior(q) + ln_likelihood(q,P_d,sig_d).real
+	return ln_prior(q) + ln_likelihood(q,P_d,sig_d)
 
 ################################
 #	MCMC using the emcee code
@@ -402,10 +423,12 @@ if n_s[0]==True:
 if tau[0]==True:
 	med.append(tau[1])
 	desv.append(tau[2])
-med.append(n_bar0[0])
-med.append(bb[0])
-desv.append(n_bar0[1])
-desv.append(bb[1])
+if n_bar0[0] == True:
+	med.append(n_bar0[1])
+	desv.append(n_bar0[2])
+if bb[0] == True:
+	med.append(bb[1])
+	desv.append(bb[2])
 med = np.array(med) ;  desv = np.array(desv)
 starting_guesses = np.zeros((nwalkers,ndim))	#this generates random initial steps 
 
@@ -414,13 +437,12 @@ for i in range(nwalkers):
 print(starting_guesses)
 
 init = time()
-sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post, args=[P_data, Sigma_data], threads=ncores)
+sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post,a=1.5,args=[P_data, Sigma_data], threads=ncores)
 chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
 
 #for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
-#for result in sampler.run_mcmc(starting_guesses, N=200):
 #	position = np.array(result[0])
 #	lnlike   = np.array(result[1])
 #	f = open(chain_name_file, "a")
@@ -439,7 +461,11 @@ print("tempo = "+str(final-init))
 print("Mean acceptance fraction: {0:.3f}" .format(np.mean(sampler.acceptance_fraction)))
 #samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
 samples = sampler.flatchain
-np.savetxt(chain_name_file, samples)
+#np.savetxt(chain_name_file, samples)
+like = sampler.flatlnprobability
+np.savetxt(chain_name_file, np.c_[samples, like])
 #fig = triangle.corner(samples,labels=["$H_0$","$\Omega_{cdm}$",'$n_0$', 'b'], truths=[72.,0.2538,-1., 8., 0.04])
 #fig.savefig("fig_"+chain_name+".png")
 os.system('rm realiz*')
+os.system('echo "Checar os resultados com o post_process_plots.py" | mail -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
+##

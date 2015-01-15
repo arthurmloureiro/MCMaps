@@ -21,6 +21,7 @@ Table of content
 - **HighLExtrapTemplate_lenspotentialCls.dat** - CAMB needs this file
 - **params_realiz.ini** - mcmaps reads this file and uses it to run camb
 - **selection_function.py** - File containing information about the selection function and its parameters
+- **post_process_plot.py** - prints the triangle plots, just like the old one did
 Recent Modifications:
 ---
 - 25/11/2014 - Repository created, it still need modifications on the *fkp_class* in order to avoid unphysical power spectra
@@ -29,5 +30,6 @@ Recent Modifications:
 - 27/11/2014 The new *input.py* replaces *input.dat* and goes to the program through *from input import .*
 - 17/11/2014 Generalized the code, it can accept any combination of cosmological parameters to prope from {hubble, omega-lambda, omega-cdm, omega-baryon, omega-neutrino, w, n-s, tau}. _5 parameters estimation for 200 points took 226,38 s in 4 cores_
 - 07/01/2015 Realized there's a problem with the emcee code, need to
-change the _.sample_ to _.runmcmc_ **need to realize who to save the
+change the _.sample_ to _.runmcmc_ **need to realize how to save the
 chains**
+- 15/01/2015 Uses the _.runmcmc_ method to generate the chains, sends an email notification when it's over. Changed the Gaussian prior to a flat prior. Solved the *1/10* problem in the error bars.

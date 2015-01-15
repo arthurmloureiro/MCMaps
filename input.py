@@ -6,12 +6,12 @@
 
 # path to camb
 camb_path = "~/Documents/camb/"
-
+#camb_path = "~/Documents/Dropbox/Mestrado/camb"
 # Map File name - The map to be analyzed 
 map_file = "map_TESTE.dat"
 
 #Chain file name.
-chain_name = "TESTE_chain_mcmc"
+chain_name = "2_params_a15_big"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -37,27 +37,27 @@ num_bins = 18
 realiz_type = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 4
+ndim = 2
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 10
+nwalkers = 50
 
 #Number of steps for each walker
-nsteps = 100
+nsteps = 200
 
 #Burn in - Chain points to be thrown away
-nburn = 1
+nburn = 0
 
 #Number of cores to paralelize the chains:
-ncores = 2
+ncores = 4
 
 ##########################
 #Cosmological parameters 
 ##########################
 #[Boolean(if False, assumes the fixed fiducial value), Mean, Std for the gaussian prior]:
-hubble = [True, 65., 10.0]
+hubble = [True, 60., 8.0]
 omega_lambda = [False, 0.7,0.2]
-omega_cdm = [True, 0.20,0.10]
+omega_cdm = [True, 0.20,0.1]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0.001, 0.01]
 w = [False, -1.0, 1.0]
