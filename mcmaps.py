@@ -25,7 +25,8 @@ from selection_function import *
 # the input.py file contains the initial information
 #####################################################
 path = os.path.expanduser(camb_path)
-Map_flat = np.loadtxt(map_file)
+#Map_flat = np.loadtxt(map_file)
+Map_flat = np.load(map_file)
 Map = Map_flat.reshape(n_x,n_y,n_z)
 
 L_x = n_x*cell_size ; L_y = n_y*cell_size ; L_z = n_z*cell_size 		     # size of the box
@@ -51,7 +52,7 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.04)
+n_bar_matrix_fid = selection_func(grid.grid_r, 100.0,0.04)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -188,8 +189,8 @@ def P_theory(q):
 	#############################
 	filepower = powername+"_matterpower.dat"
 	k_camb, Pk_camb = np.loadtxt(filepower, unpack=1)
-	k_camb = k_camb[65:]
-	Pk_camb = Pk_camb[65:]
+	k_camb = k_camb[110:]
+	Pk_camb = Pk_camb[110:]
 	#os.system("rm " + new_file + " " + filepower)
 	final = time()
 	#print("tempo camb="+str(final-init))
@@ -349,7 +350,7 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if n_bar0[0]==True:
-		if 4. < q[cc] < 12.:
+		if 50. < q[cc] < 130.:
 			#pN_bar = ln_gaussian(n_bar0[1],n_bar0[2],q[cc])
 			pN_bar = 0.
 		else:
@@ -381,7 +382,7 @@ def ln_likelihood(q,P_d,sig_d):
 		ptimef = time()
 		ptimet = ptimef - ptimei
 		#print("Tempo total do P_theory = ", ptimet)
-		varr = sig_d**2 + theory[1]**2 #Changed for the statistical error bars!
+		varr = sig_d**2 + 0.0*theory[1]**2 #Changed for the statistical error bars!
 		lk = -0.5*np.sum(((P_d-theory[0])**2)/(varr+1e-20))*(1./num_bins)
 		#nomeee = "power"+str(lk+lp)+".dat"
 		#np.savetxt(nomeee, np.c_[k_bar*(2.*np.pi*n_x/L_x),P_d,theory[0],theory[1]])
@@ -437,7 +438,7 @@ for i in range(nwalkers):
 print(starting_guesses)
 
 init = time()
-sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post,a=1.5,args=[P_data, Sigma_data], threads=ncores)
+sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post,args=[P_data, Sigma_data], threads=ncores)
 chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
@@ -456,16 +457,16 @@ f.close()
 sampler.run_mcmc(starting_guesses, N=nsteps)
 print("done")
 final = time()
-print("tempo = "+str(final-init))
+print("tempo = "+str((final-init)/(60*60)))
 
 print("Mean acceptance fraction: {0:.3f}" .format(np.mean(sampler.acceptance_fraction)))
-#samples = sampler.chain[:, nburn:, :].reshape((-1, ndim))
+
 samples = sampler.flatchain
-#np.savetxt(chain_name_file, samples)
+
 like = sampler.flatlnprobability
 np.savetxt(chain_name_file, np.c_[samples, like])
-#fig = triangle.corner(samples,labels=["$H_0$","$\Omega_{cdm}$",'$n_0$', 'b'], truths=[72.,0.2538,-1., 8., 0.04])
-#fig.savefig("fig_"+chain_name+".png")
+
 os.system('rm realiz*')
-os.system('echo "Checar os resultados com o post_process_plots.py" | mail -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
+os.system('python post_process_plots.py &')
+os.system('echo "Checar os resultados com o post_process_plots.py. Acceptance rante = '+str(np.mean(sampler.acceptance_fraction))+' " | mutt -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
 ##

@@ -30,7 +30,7 @@ class fkp_init(object):
         self.phsize_z=float(cell_size*n_z)
         largenumber = 1000
 
-        self.nr = np.random.poisson(n_bar_matrix)*largenumber #the random catalog, with the same selection function n_bar, but with a lot more galaxies
+        self.nr = np.random.poisson(n_bar_matrix*largenumber) #the random catalog, with the same selection function n_bar, but with a lot more galaxies
         ###############################################################
         #print '\nDefining overdensity field'
 
