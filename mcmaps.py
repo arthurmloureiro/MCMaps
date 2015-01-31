@@ -52,25 +52,14 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-n_bar_matrix_fid = selection_func(grid.grid_r, 100.0,0.04)
+n_bar_matrix_fid = selection_func(grid.grid_r, 5.0,0.05)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
 fkp_stuff = fkpc.fkp_init(num_bins,n_bar_matrix_fid,bias,cell_size,n_x,n_y,n_z,M)
 FKP1 = fkp_stuff.fkp(Map)
-P_data = fkp_stuff.P_ret.real
+#P_data = fkp_stuff.P_ret.real
 Sigma_data = fkp_stuff.sigma.real
-
-#kk,pp = np.loadtxt("fid_new_matterpower.dat", unpack=1)
-#pl.figure()
-#pl.loglog()
-#pl.xlim(1E-3,2.0)
-#pl.ylim(5E2,1E5)
-#pl.plot(kk,pp)
-#pl.errorbar(k_bar*(2.*np.pi*n_x/L_x),P_data,yerr=Sigma_data,label='Mean Estimated P(k)')
-#pl.axvline(x=np.max(np.max(grid.k_x)*(2.*np.pi*n_x/L_x)),color='k',label='Nyquist f.')
-#pl.show()
-#sys.exit(-1)
 
 ##############################################################
 #	Let us difine the **p.d.f.** s and some useful functions:
@@ -103,26 +92,15 @@ def delta_x_ln(d_,sigma_,bias_):
 #	realizations of the density field. Then it fkp the final galaxy maps
 #	resulting in a avarage fkp power spectrum
 ##############################################################################
-def P_theory(q):
+def P_theory(q,DATA):
 	"""
 	q = parameters
-	o_cdm = q[0]
-	hubble1 = q[1]
-	w1 = q[2]
-	a = q[3]
-	b = abs(q[4])
-	c=q[5]
+	DATA = Galaxy Map 
 	"""
-    #a = n_bar
-    #b = 0.01
-	##############################
+    ##############################
 	# modifing camb and running it
 	##############################
-	#path = os.path.expanduser("~/Documents/camb/params.ini")
-	#numb2 = str(np.random.randint(0,250000))
 	numb = uuid.uuid4()
-	#numb2 = uuid.uuid4()
-	#numb=str(1)
 	powername = "realiz"+str(numb)
 	new_file="realiz"+str(numb)+"_params.ini"
 	os.system('touch '+new_file)
@@ -169,7 +147,6 @@ def P_theory(q):
 	final = time()
 	tempo = final - init
 	#print("time final P Theory=  ", tempo)
-    #temp[29] = " scalar_amp(1)             = %.2e\n" %(A_s)
 	out=open(new_file, 'w')
 	wtimein = time()
 	for i in temp:
@@ -183,15 +160,12 @@ def P_theory(q):
 	tcambf = time()
 	tcambtotal = tcambf - tcambi
 	#print("Tempo para rodar o CAMB = ", tcambtotal)
-	#os.system("~/Documents/Dropbox/Mestrado/camb/camb " + new_file + " 1>o.txt 2>e.txt")
 	#############################
 	# Reading new camb file
 	#############################
 	filepower = powername+"_matterpower.dat"
 	k_camb, Pk_camb = np.loadtxt(filepower, unpack=1)
-	k_camb = k_camb[110:]
-	Pk_camb = Pk_camb[110:]
-	#os.system("rm " + new_file + " " + filepower)
+	k_camb = k_camb
 	final = time()
 	#print("tempo camb="+str(final-init))
 	#################################
@@ -207,6 +181,9 @@ def P_theory(q):
 	###########################################
 	n_bar_matrix = selection_func(grid.grid_r,a,b)
 	fkp_mcmc = fkpc.fkp_init(num_bins,n_bar_matrix,bias,cell_size,n_x,n_y,n_z, M)
+	FKP_DATA = fkp_mcmc.fkp(DATA)
+	P_dat = fkp_mcmc.P_ret.real
+	sigma_dat = fkp_mcmc.sigma.real 
 	######################################
 	# here goes the realization's loop
 	######################################
@@ -282,7 +259,7 @@ def P_theory(q):
 	#P_sig =1.
 	P_avsig = (1./num_realiz)*np.sum(sigma_all, axis=1)
 	os.system('rm ' + powername +"*")
-	return P_av.real, P_sig.real, P_avsig.real
+	return P_av.real, P_sig.real, P_avsig.real, P_dat 
 
 ########################################################
 #	Baysian functions: prior, likelihood and posterior
@@ -291,6 +268,9 @@ def ln_gaussian(mean, des,x):
 	return -0.5*((x-mean)/des)**2
 
 def ln_prior(q):
+	"""
+	Flat Prior for all parametrer
+	"""
 	cc = 0
 	pH,pLamb,pCDM,pBaryon,pNu,pW,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0
 	if hubble[0]==True:
@@ -308,7 +288,7 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if omega_cdm[0]==True:
-		if  0.05 < q[cc] < 0.6:
+		if  0.05 < q[cc] < 0.5:
 			#pCDM = ln_gaussian(omega_cdm[1],omega_cdm[2],q[cc])
 			pCDM = 0.
 		else: 
@@ -350,7 +330,7 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if n_bar0[0]==True:
-		if 50. < q[cc] < 130.:
+		if 1. < q[cc] < 13.:
 			#pN_bar = ln_gaussian(n_bar0[1],n_bar0[2],q[cc])
 			pN_bar = 0.
 		else:
@@ -363,12 +343,10 @@ def ln_prior(q):
 		else:
 			return -np.inf	
 	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB
-def ln_likelihood(q,P_d,sig_d):
+def ln_likelihood(q,DATA,sig_d):
 	"""
 	Defining gaussian likelihood
 	"""
-	#o_cdm, hubble, a,b = q
-	#o_cdm, hubble1, w1, a, b = q
 	inicial = time()
 	lp = ln_prior(q)
 	final2 = time()
@@ -379,19 +357,25 @@ def ln_likelihood(q,P_d,sig_d):
 	else:
 		ptimei = time()
 		theory = P_theory(q)
+		
+		P_t = theory[0]
+        Sig_t1 = theory[1]
+        Sig_t2 = theory[2]
+        P_data = theory[3]
+		
 		ptimef = time()
 		ptimet = ptimef - ptimei
 		#print("Tempo total do P_theory = ", ptimet)
-		varr = sig_d**2 + 0.0*theory[1]**2 #Changed for the statistical error bars!
-		lk = -0.5*np.sum(((P_d-theory[0])**2)/(varr+1e-20))*(1./num_bins)
+		varr = sig_d**2 + 0.0*np.nan_to_num(Sig_t1**2) #Changed for the statistical error bars!
+		lk = -0.5*np.sum(((P_data-P_t)**2)/(varr+1e-20))*(1./num_bins)
 		#nomeee = "power"+str(lk+lp)+".dat"
 		#np.savetxt(nomeee, np.c_[k_bar*(2.*np.pi*n_x/L_x),P_d,theory[0],theory[1]])
 		return lk
-def ln_post(q,P_d,sig_d):
+def ln_post(q,DATA,sig_d):
 	"""
 	Posterior to be sampled
 	"""
-	return ln_prior(q) + ln_likelihood(q,P_d,sig_d)
+	return ln_prior(q) + ln_likelihood(q,DATA,sig_d)
 
 ################################
 #	MCMC using the emcee code
@@ -438,7 +422,7 @@ for i in range(nwalkers):
 print(starting_guesses)
 
 init = time()
-sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post,args=[P_data, Sigma_data], threads=ncores)
+sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post,args=[Map, Sigma_data], threads=ncores)
 chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
@@ -469,4 +453,4 @@ np.savetxt(chain_name_file, np.c_[samples, like])
 os.system('rm realiz*')
 os.system('python post_process_plots.py &')
 os.system('echo "Checar os resultados com o post_process_plots.py. Acceptance rante = '+str(np.mean(sampler.acceptance_fraction))+' " | mutt -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
-##
+
