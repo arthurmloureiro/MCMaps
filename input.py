@@ -11,7 +11,7 @@ camb_path = "~/Documents/camb/"
 map_file = "64g_bias1_cs_20.npy"
 
 #Chain file name.
-chain_name = "H0_CDM_64_cz20_r1_2"
+chain_name = "H0_CDM_Selec_new"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -25,7 +25,7 @@ n_z = 64
 bias = 1.000
 
 # Number of bins to estimate P(k). It must be integer.
-num_bins = 30
+num_bins = 28
 
 ################################################
 # Which kind of realizations to vary? 
@@ -37,16 +37,16 @@ realiz_type = 1
 num_realiz = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 2
+ndim = 4
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 60
+nwalkers = 150
 
 #Number of steps for each walker
 nsteps = 200
 
 #Burn in - Chain points to be thrown away
-nburn = 0.
+nburn =8000
 
 #Number of cores to paralelize the chains:
 ncores = 4
@@ -65,5 +65,5 @@ n_s = [False, 0.96, 0.096]
 tau = [False, 0.09,0.009]
 
 #initial guesses for the selection function parameters
-n_bar0 = [False,100.,10.0]
-bb = [False,0.04,0.01]
+n_bar0 = [True,5.,1.0]
+bb = [True,0.02,0.01]
