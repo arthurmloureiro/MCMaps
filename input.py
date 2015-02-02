@@ -11,7 +11,7 @@ camb_path = "~/Documents/camb/"
 map_file = "64g_bias1_cs_20.npy"
 
 #Chain file name.
-chain_name = "H0_CDM_Selec_new"
+chain_name = "H0_CDM_Selec_new2"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -37,16 +37,16 @@ realiz_type = 1
 num_realiz = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 4
+ndim = 5
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
 nwalkers = 150
 
 #Number of steps for each walker
-nsteps = 200
+nsteps = 300
 
 #Burn in - Chain points to be thrown away
-nburn =8000
+nburn = 0
 
 #Number of cores to paralelize the chains:
 ncores = 4
@@ -56,7 +56,7 @@ ncores = 4
 ##########################
 #[Boolean(if False, assumes the fixed fiducial value), Mean, Std for the gaussian prior]:
 hubble = [True, 65., 8.0]
-omega_lambda = [False, 0.7,0.2]
+omega_lambda = [True, 0.7,0.2]
 omega_cdm = [True, 0.22,0.10]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0.001, 0.01]

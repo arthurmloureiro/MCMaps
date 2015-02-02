@@ -115,25 +115,25 @@ def P_theory(q,DATA):
 		temp[11] = "hubble         = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if omega_lambda[0] == True:
-		temp[16] = "omega_lambda         = %.4f\n" %(q[ct_p])
+		temp[17] = "omega_lambda         = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if omega_cdm[0] == True:
-		temp[15] = "omega_cdm      = %.4f\n" %(q[ct_p])
+		temp[16] = "omega_cdm      = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if omega_baryon[0] == True:
-		temp[14] = "omega_baryon   = %.4f\n" %(q[ct_p])
+		temp[15] = "omega_baryon   = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1	
 	if omega_neutrino[0] == True:
-		temp[17] = "omega_neutrino = %.4f\n" %(q[ct_p])
+		temp[18] = "omega_neutrino = %.4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if w[0] == True:
 		temp[12] = "w              = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if n_s[0] == True:
-		temp[30] = "scalar_spectral_index(1)           = %4f\n" %(q[ct_p])
+		temp[31] = "scalar_spectral_index(1)           = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if tau[0] == True:
-		temp[39] = "re_optical_depth           = %4f\n" %(q[ct_p])
+		temp[40] = "re_optical_depth           = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if n_bar0[0] == True:
 		a = q[ct_p]
@@ -165,7 +165,7 @@ def P_theory(q,DATA):
 	#############################
 	filepower = powername+"_matterpower.dat"
 	k_camb, Pk_camb = np.loadtxt(filepower, unpack=1)
-	k_camb = k_camb
+	Pk_camb[np.where(Pk_camb<1E-10)]=1.
 	final = time()
 	#print("tempo camb="+str(final-init))
 	#################################
@@ -265,6 +265,9 @@ def P_theory(q,DATA):
 #	Baysian functions: prior, likelihood and posterior
 ########################################################
 def ln_gaussian(mean, des,x):
+	"""
+	mean, standard deviation and the value
+	"""
 	return -0.5*((x-mean)/des)**2
 
 def ln_prior(q):
@@ -288,7 +291,7 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if omega_cdm[0]==True:
-		if  0.05 < q[cc] < 0.5:
+		if  0.05 < q[cc] < 0.6:
 			#pCDM = ln_gaussian(omega_cdm[1],omega_cdm[2],q[cc])
 			pCDM = 0.
 		else: 
@@ -330,20 +333,20 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if n_bar0[0]==True:
-		if 1. < q[cc] < 13.:
+		if 0.01 < q[cc] < 12.:
 			#pN_bar = ln_gaussian(n_bar0[1],n_bar0[2],q[cc])
 			pN_bar = 0.
 		else:
 			return -np.inf
 		cc = cc +1
 	if bb[0]==True:
-		if 0.005 < q[cc] < 0.08:
+		if 0.005 < q[cc] < 0.1:
 			#pBB = ln_gaussian(bb[1],bb[2],q[cc])
 			pBB = 0.
 		else:
 			return -np.inf	
 	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB
-def ln_likelihood(q,DATA,sig_d):
+def ln_likelihood(q,DATA,Sig_data):
 	"""
 	Defining gaussian likelihood
 	"""
@@ -356,32 +359,30 @@ def ln_likelihood(q,DATA,sig_d):
 		return -np.inf
 	else:
 		ptimei = time()
-		theory = P_theory(q)
+		theory = P_theory(q, DATA)
 		
 		P_t = theory[0]
-        Sig_t1 = theory[1]
-        Sig_t2 = theory[2]
-        P_data = theory[3]
+		Sig_t1 = theory[1]
+		Sig_t2 = theory[2]
+		P_data = theory[3]
 		
 		ptimef = time()
 		ptimet = ptimef - ptimei
 		#print("Tempo total do P_theory = ", ptimet)
-		varr = sig_d**2 + 0.0*np.nan_to_num(Sig_t1**2) #Changed for the statistical error bars!
+		varr = Sig_data**2 + 0.0*np.nan_to_num(Sig_t1**2) 
 		lk = -0.5*np.sum(((P_data-P_t)**2)/(varr+1e-20))*(1./num_bins)
-		#nomeee = "power"+str(lk+lp)+".dat"
-		#np.savetxt(nomeee, np.c_[k_bar*(2.*np.pi*n_x/L_x),P_d,theory[0],theory[1]])
 		return lk
-def ln_post(q,DATA,sig_d):
+def ln_post(q,DATA,Sig_data):
 	"""
 	Posterior to be sampled
 	"""
-	return ln_prior(q) + ln_likelihood(q,DATA,sig_d)
+	lpost = ln_prior(q) + ln_likelihood(q,DATA,Sig_data)
+	return lpost
 
 ################################
 #	MCMC using the emcee code
 ################################
-#med = np.array([0.25,70., -1.0, 8.0,0.01])	#medium of each inicial step
-#desv=np.array([0.03,9., 0.4,1.,0.001])	#deviation of each initial step
+# Initial guesses
 med=([])
 desv=([])
 if hubble[0]==True:
@@ -453,4 +454,4 @@ np.savetxt(chain_name_file, np.c_[samples, like])
 os.system('rm realiz*')
 os.system('python post_process_plots.py &')
 os.system('echo "Checar os resultados com o post_process_plots.py. Acceptance rante = '+str(np.mean(sampler.acceptance_fraction))+' " | mutt -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
-
+##
