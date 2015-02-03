@@ -11,7 +11,7 @@ camb_path = "~/Documents/camb/"
 map_file = "64g_bias1_cs_20.npy"
 
 #Chain file name.
-chain_name = "H0_CDM_Selec_new2"
+chain_name = "H0_CDM_wa_Selec_new2"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -40,7 +40,7 @@ num_realiz = 1
 ndim = 5
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 150
+nwalkers = 80
 
 #Number of steps for each walker
 nsteps = 300
@@ -56,11 +56,12 @@ ncores = 4
 ##########################
 #[Boolean(if False, assumes the fixed fiducial value), Mean, Std for the gaussian prior]:
 hubble = [True, 65., 8.0]
-omega_lambda = [True, 0.7,0.2]
+omega_lambda = [False, 0.7,0.2]
 omega_cdm = [True, 0.22,0.10]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0.001, 0.01]
 w = [False, -1.0, 1.0]
+w_a = [True, 0.1, 0.1]
 n_s = [False, 0.96, 0.096]
 tau = [False, 0.09,0.009]
 

@@ -52,7 +52,7 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-n_bar_matrix_fid = selection_func(grid.grid_r, 5.0,0.05)
+n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.05)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -128,6 +128,9 @@ def P_theory(q,DATA):
 		ct_p = ct_p + 1
 	if w[0] == True:
 		temp[12] = "w              = %4f\n" %(q[ct_p])
+		ct_p = ct_p + 1
+	if w_a[0] == True:
+		temp[13] = "wa              = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
 	if n_s[0] == True:
 		temp[31] = "scalar_spectral_index(1)           = %4f\n" %(q[ct_p])
@@ -275,7 +278,7 @@ def ln_prior(q):
 	Flat Prior for all parametrer
 	"""
 	cc = 0
-	pH,pLamb,pCDM,pBaryon,pNu,pW,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0
+	pH,pLamb,pCDM,pBaryon,pNu,pW,pWa,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0
 	if hubble[0]==True:
 		if 40. < q[cc] < 95.:
 			#pH = ln_gaussian(hubble[1],hubble[2],q[cc])
@@ -315,6 +318,13 @@ def ln_prior(q):
 		if  -2.0 < q[cc] < -0.3333:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pW = 0.
+		else: 
+			return -np.inf
+		cc = cc + 1
+	if w_a[0]==True:
+		if  -1.0 < q[cc] < 1.0:
+			#pW = ln_gaussian(w[1],w[2],q[cc])
+			pWa = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
@@ -403,6 +413,9 @@ if omega_neutrino[0]==True:
 if w[0]==True:
 	med.append(w[1])
 	desv.append(w[2])
+if w_a[0]==True:
+	med.append(w_a[1])
+	desv.append(w_a[2])
 if n_s[0]==True:
 	med.append(n_s[1])
 	desv.append(n_s[2])
