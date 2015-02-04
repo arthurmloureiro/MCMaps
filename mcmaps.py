@@ -315,14 +315,14 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if w[0]==True:
-		if  -2.0 < q[cc] < -0.3333:
+		if  -2.0 < q[cc] < -0.4533:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pW = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if w_a[0]==True:
-		if  -1.0 < q[cc] < 1.0:
+		if  -1.0 < q[cc] < 0.75:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pWa = 0.
 		else: 
@@ -466,5 +466,5 @@ np.savetxt(chain_name_file, np.c_[samples, like])
 
 os.system('rm realiz*')
 os.system('python post_process_plots.py &')
-os.system('echo "Checar os resultados com o post_process_plots.py. Acceptance rante = '+str(np.mean(sampler.acceptance_fraction))+' " | mutt -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
+os.system('echo "Checar os resultados com o post_process_plots.py. Acceptance rate = '+str(np.mean(sampler.acceptance_fraction))+' " | mutt -s "O programa MCMaps terminou de rodar no Cosmos" arthurmloureiro@gmail.com')
 ##
