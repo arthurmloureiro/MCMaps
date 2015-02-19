@@ -278,7 +278,7 @@ def ln_prior(q):
 	Flat Prior for all parametrer
 	"""
 	cc = 0
-	pH,pLamb,pCDM,pBaryon,pNu,pW,pWa,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0
+	pH,pLamb,pCDM,pBaryon,pNu,pW,pWa,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0,0
 	if hubble[0]==True:
 		if 40. < q[cc] < 95.:
 			#pH = ln_gaussian(hubble[1],hubble[2],q[cc])
@@ -315,14 +315,14 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc + 1
 	if w[0]==True:
-		if  -2.0 < q[cc] < -0.4533:
+		if  -4.0 < q[cc] < -0.4533:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pW = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if w_a[0]==True:
-		if  -1.0 < q[cc] < 0.75:
+		if  -4.0 < q[cc] < 0.75:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pWa = 0.
 		else: 
@@ -441,28 +441,28 @@ chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
 
-#for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
-#	position = np.array(result[0])
-#	lnlike   = np.array(result[1])
-#	f = open(chain_name_file, "a")
-#	for k in range(nwalkers):
-#		for d in range(ndim):
-#			print(position[k][d], sep=" ", end=" ", file=f)
-#		print(lnlike[k], file=f)
-        #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
-#	f.close()
+for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
+	position = np.array(result[0])
+	lnlike   = np.array(result[1])
+	f = open(chain_name_file, "a")
+	for k in range(nwalkers):
+		for d in range(ndim):
+			print(position[k][d], sep=" ", end=" ", file=f)
+		print(lnlike[k], file=f)
+        f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
+	f.close()
 
-sampler.run_mcmc(starting_guesses, N=nsteps)
+#sampler.run_mcmc(starting_guesses, N=nsteps)
 print("done")
 final = time()
 print("tempo = "+str((final-init)/(60*60)))
 
 print("Mean acceptance fraction: {0:.3f}" .format(np.mean(sampler.acceptance_fraction)))
 
-samples = sampler.flatchain
+#samples = sampler.flatchain
 
-like = sampler.flatlnprobability
-np.savetxt(chain_name_file, np.c_[samples, like])
+#like = sampler.flatlnprobability
+#np.savetxt(chain_name_file, np.c_[samples, like])
 
 os.system('rm realiz*')
 os.system('python post_process_plots.py &')
