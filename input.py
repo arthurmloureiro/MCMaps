@@ -5,13 +5,13 @@
 #################################################
 
 # path to camb
-camb_path = "~/Documents/camb/"
-#camb_path = "~/Documents/Dropbox/Mestrado/camb"
+#camb_path = "~/Documents/camb/"
+camb_path = "~/Documents/Dropbox/Mestrado/camb"
 # Map File name - The map to be analyzed 
 map_file = "64g_bias1_cs_20.npy"
 
 #Chain file name.
-chain_name = "H0_CDM_wa_Selec_new2"
+chain_name = "H0_CDM_w_wa_selec"
 
 # Cell physical size in Mpc h^-1
 cell_size = 20.00
@@ -37,16 +37,16 @@ realiz_type = 1
 num_realiz = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 5
+ndim = 6
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 80
+nwalkers = 4
 
 #Number of steps for each walker
-nsteps = 300
+nsteps = 400
 
 #Burn in - Chain points to be thrown away
-nburn = 0
+nburn = 25000
 
 #Number of cores to paralelize the chains:
 ncores = 4
@@ -60,11 +60,13 @@ omega_lambda = [False, 0.7,0.2]
 omega_cdm = [True, 0.22,0.10]
 omega_baryon = [False, 0.0462,0.0046]
 omega_neutrino = [False, 0.001, 0.01]
-w = [False, -1.0, 1.0]
+w = [True, -1.0, 1.0]
 w_a = [True, 0.1, 0.1]
 n_s = [False, 0.96, 0.096]
 tau = [False, 0.09,0.009]
 
 #initial guesses for the selection function parameters
-n_bar0 = [True,5.,1.0]
-bb = [True,0.02,0.01]
+n_bar0 = [False,5.,1.0]
+bb = [True,0.05,0.01]
+c2 = [True,0.25,0.05]
+k0 = [True,1.3,0.2]

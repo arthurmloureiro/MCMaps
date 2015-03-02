@@ -52,7 +52,8 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.05)
+#n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.05)
+n_bar_matrix_fid = selection_func(grid.r_x,grid.r_y,grid.r_z,n_bar0[1],1./16,1.2)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -138,15 +139,33 @@ def P_theory(q,DATA):
 	if tau[0] == True:
 		temp[40] = "re_optical_depth           = %4f\n" %(q[ct_p])
 		ct_p = ct_p + 1
+	################################
+	# selection function parameters
+	################################
 	if n_bar0[0] == True:
 		a = q[ct_p]
 		ct_p = ct_p + 1
 	else:
 		a = n_bar0[1]
+
 	if bb[0] == True:
 		b = q[ct_p]
+		ct_p=ct_p+1
 	else:
 		b = bb[1]
+
+	if c2[0]==True:
+		cc2 = q[ct_p]
+		ct_p=ct_p+1
+	else:
+		cc2=c2[1]
+		
+	if k0[0] == True:
+		kk0 = q[ct_p]
+		ct_p=ct_p+1
+	else:
+		kk0 = k0[1]
+	
 	final = time()
 	tempo = final - init
 	#print("time final P Theory=  ", tempo)
@@ -182,7 +201,8 @@ def P_theory(q,DATA):
 	###########################################
 	# Generating the selection function matrix
 	###########################################
-	n_bar_matrix = selection_func(grid.grid_r,a,b)
+	#n_bar_matrix = selection_func(grid.grid_r,a,b)
+	n_bar_matrix = selection_func(grid.r_x,grid.r_y,grid.r_z,a,b,cc2,kk0)
 	fkp_mcmc = fkpc.fkp_init(num_bins,n_bar_matrix,bias,cell_size,n_x,n_y,n_z, M)
 	FKP_DATA = fkp_mcmc.fkp(DATA)
 	P_dat = fkp_mcmc.P_ret.real
@@ -278,7 +298,7 @@ def ln_prior(q):
 	Flat Prior for all parametrer
 	"""
 	cc = 0
-	pH,pLamb,pCDM,pBaryon,pNu,pW,pWa,pN_s,pTau,pN_bar,pBB=0,0,0,0,0,0,0,0,0,0,0
+	pH,pLamb,pCDM,pBaryon,pNu,pW,pWa,pN_s,pTau,pN_bar,pBB,pC2,pk0=0,0,0,0,0,0,0,0,0,0,0,0,0
 	if hubble[0]==True:
 		if 40. < q[cc] < 95.:
 			#pH = ln_gaussian(hubble[1],hubble[2],q[cc])
@@ -342,6 +362,9 @@ def ln_prior(q):
 		else: 
 			return -np.inf
 		cc = cc + 1
+	################################
+	# Selection function Parameters
+	################################
 	if n_bar0[0]==True:
 		if 0.01 < q[cc] < 12.:
 			#pN_bar = ln_gaussian(n_bar0[1],n_bar0[2],q[cc])
@@ -350,12 +373,26 @@ def ln_prior(q):
 			return -np.inf
 		cc = cc +1
 	if bb[0]==True:
-		if 0.005 < q[cc] < 0.1:
+		if 1./32 < q[cc] < 1./8:
 			#pBB = ln_gaussian(bb[1],bb[2],q[cc])
 			pBB = 0.
 		else:
 			return -np.inf	
-	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB
+		cc = cc +1
+	if c2[0]==True:
+		if 0.1 < q[cc] < 0.3:
+			pC2 = 0.
+		else:
+			return -np.inf
+		cc = cc + 1
+	if k0[0]==True:
+		if 1.0 < q[cc] < 1.4:
+			pk0 = 0.
+		else:
+			return -np.inf
+		cc = cc +1
+	return pH + pLamb + pCDM + pBaryon + pNu + pW + pN_s + pTau + pN_bar + pBB + pC2 + pk0
+
 def ln_likelihood(q,DATA,Sig_data):
 	"""
 	Defining gaussian likelihood
@@ -428,6 +465,12 @@ if n_bar0[0] == True:
 if bb[0] == True:
 	med.append(bb[1])
 	desv.append(bb[2])
+if c2[0]==True:
+	med.append(c2[1])
+	desv.append(c2[2])
+if k0[0]==True:
+	med.append(k0[1])
+	desv.append(k0[2])
 med = np.array(med) ;  desv = np.array(desv)
 starting_guesses = np.zeros((nwalkers,ndim))	#this generates random initial steps 
 
@@ -449,7 +492,7 @@ for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=Tru
 		for d in range(ndim):
 			print(position[k][d], sep=" ", end=" ", file=f)
 		print(lnlike[k], file=f)
-        f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
+        #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
 	f.close()
 
 #sampler.run_mcmc(starting_guesses, N=nsteps)
