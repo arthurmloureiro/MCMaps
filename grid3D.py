@@ -62,8 +62,11 @@ class grid3d:
 		# Generating a grid a real space, uses grid unities
 		####################################################
 		r_x = np.arange(n_x)#*(L_x/n_x)
+		self.r_x = r_x
 		r_y = np.arange(n_y)#*(L_y/n_y)
+		self.r_y = r_y
 		r_z = np.arange(n_z)#*(L_z/n_z)
+		self.r_z = r_z
 		self.RX2 = np.einsum('i,j,k', r_x*r_x,identx,identx)
 		self.RY2 = np.einsum('i,j,k', identy,r_y*r_y,identy)
 		self.RZ2 = np.einsum('i,j,k', identz,identz,r_z*r_z)
