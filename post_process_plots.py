@@ -58,11 +58,6 @@ if n_s[0] == True:
 	true_vals.append(0.96)
 	print 'mean n_s = '+ str(np.mean(p[count][nburn:])) + ' std = ' + str(np.std(p[count][nburn:]))
 	count = count + 1
-if n_s[0] == True:
-	label.append("$n_s$")
-	true_vals.append(0.96)
-	print 'mean n_s = '+ str(np.mean(p[count][nburn:])) + ' std = ' + str(np.std(p[count][nburn:]))
-	count = count + 1
 if tau[0] == True:
 	label.append(r"$\tau$")
 	true_vals.append(0.09)
@@ -78,8 +73,19 @@ if bb[0] == True:
 	true_vals.append(0.05)
 	print 'mean b = '+ str(np.mean(p[count][nburn:])) + ' std = ' + str(np.std(p[count][nburn:]))
 	count = count + 1
-fig = triangle.corner(tudo, labels=label, truths =true_vals,bins=25,color='k')
+if c2[0] == True:
+	label.append(r"$c_2$")
+	true_vals.append(0.2)
+	print 'mean c2 = '+ str(np.mean(p[count][nburn:])) + ' std = ' + str(np.std(p[count][nburn:]))
+	count = count + 1
+if k0[0] == True:
+	label.append(r"$k_0$")
+	true_vals.append(1.2)
+	print 'mean k0 = '+ str(np.mean(p[count][nburn:])) + ' std = ' + str(np.std(p[count][nburn:]))
+	count = count + 1
+
+fig = triangle.corner(tudo, labels=label, truths =true_vals,scale_hist=1,bins=25,color='k',quantiles=[0.16, 0.5, 0.84],verbose=1,plot_datapoints=0)
 
 fig_name= "fig_"+chain_name+".png"
-fig.savefig(fig_name)
+fig.savefig(fig_name,transparent=1)
 pl.show()
