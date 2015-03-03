@@ -70,7 +70,7 @@ if n_bar0[0] == True:
 	count = count + 1
 if bb[0] == True:
 	label.append(r"$b$")
-	true_vals.append(0.05)
+	true_vals.append(1./16)
 	print 'mean b = '+ str(np.mean(p[count][nburn:])) + ' std = ' + str(np.std(p[count][nburn:]))
 	count = count + 1
 if c2[0] == True:

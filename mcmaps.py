@@ -53,7 +53,7 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
 #n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.05)
-n_bar_matrix_fid = selection_func(grid.r_x,grid.r_y,grid.r_z,n_bar0[1],1./16,1.2)
+n_bar_matrix_fid = selection_func(grid.r_x,grid.r_y,grid.r_z,n_bar0[1],1./16,0.2,1.2)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -483,10 +483,12 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, ln_post,args=[Map, Sigma_data], 
 chain_name_file= chain_name + ".dat"
 f = open(chain_name_file, "w")
 f.close()
-
+fstate=open('state.dat','w')
+fstate.close()
 for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
 	position = np.array(result[0])
 	lnlike   = np.array(result[1])
+    state = np.array(result[2])
 	f = open(chain_name_file, "a")
 	for k in range(nwalkers):
 		for d in range(ndim):
@@ -494,6 +496,9 @@ for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=Tru
 		print(lnlike[k], file=f)
         #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
 	f.close()
+    fstate=open('state.dat',"a")
+    print(state,file=fstate)
+    fstate.close()
 
 #sampler.run_mcmc(starting_guesses, N=nsteps)
 print("done")
