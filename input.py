@@ -5,27 +5,27 @@
 #################################################
 
 # path to camb
-#camb_path = "~/Documents/camb/"
-camb_path = "~/Documents/Dropbox/Mestrado/camb"
+camb_path = "~/Documents/camb/"
+#camb_path = "~/Documents/Dropbox/Mestrado/camb"
 # Map File name - The map to be analyzed 
-map_file = "64g_bias1_cs_20.npy"
+map_file = "128Gauss_All_New1_cs_10.npy"
 
 #Chain file name.
-chain_name = "H0_CDM_w_wa_selec"
+chain_name = "H0_CDM_w_wa_selec_Gauss128_ALL_NEW"
 
 # Cell physical size in Mpc h^-1
-cell_size = 20.00
+cell_size = 10.00
 
 #Number of cells in x,y and z directions. It must be integer.
-n_x = 64
-n_y = 64
-n_z = 64
+n_x = 128
+n_y = 128
+n_z = 128
 
 # Bias
 bias = 1.000
 
 # Number of bins to estimate P(k). It must be integer.
-num_bins = 28
+num_bins = 50
 
 ################################################
 # Which kind of realizations to vary? 
@@ -37,16 +37,16 @@ realiz_type = 1
 num_realiz = 1
 
 #Number of Parameters to estimate. Cosmological + Selection Function
-ndim = 6
+ndim = 7
 
 #Number of Walkers. It must be integer, bigger than 2*ndim and even
-nwalkers = 4
+nwalkers = 64
 
 #Number of steps for each walker
-nsteps = 400
+nsteps = 1000
 
 #Burn in - Chain points to be thrown away
-nburn = 25000
+nburn = 20000
 
 #Number of cores to paralelize the chains:
 ncores = 4
@@ -54,19 +54,19 @@ ncores = 4
 ##########################
 #Cosmological parameters 
 ##########################
-#[Boolean(if False, assumes the fixed fiducial value), Mean, Std for the gaussian prior]:
-hubble = [True, 65., 8.0]
-omega_lambda = [False, 0.7,0.2]
-omega_cdm = [True, 0.22,0.10]
-omega_baryon = [False, 0.0462,0.0046]
-omega_neutrino = [False, 0.001, 0.01]
-w = [True, -1.0, 1.0]
-w_a = [True, 0.1, 0.1]
-n_s = [False, 0.96, 0.096]
-tau = [False, 0.09,0.009]
+#[Boolean(if False, assumes the fixed fiducial value), Initial Guess, lower prior, higher prior]:
+hubble = [True, 65., 40., 95.,]
+omega_lambda = [False, 0.7,0.0,1.0]
+omega_cdm = [True, 0.24, 0.05,0.6]
+omega_baryon = [False, 0.0462,0.006,0.1]
+omega_neutrino = [False, 0.001, 0., 0.02]
+w = [True, -1.0, -4.0,-0.453]
+w_a = [True, 0.1, -4.0, 0.75]
+n_s = [False, 0.96, 0.80,1.20]
+tau = [False, 0.09, 0.04,0.2]
 
 #initial guesses for the selection function parameters
-n_bar0 = [False,5.,1.0]
-bb = [True,0.05,0.01]
-c2 = [True,0.25,0.05]
-k0 = [True,1.3,0.2]
+n_bar0 = [True,30.,0.01,12]
+bb = [True,62.,30.,80.]
+c2 = [True,38,20.,45.]
+k0 = [False,1.3,0.5,2.]

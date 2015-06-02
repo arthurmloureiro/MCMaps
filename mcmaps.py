@@ -239,8 +239,10 @@ def P_theory(q,DATA):
 				##########################################
 				#print m
 				FKP2 = fkp_mcmc.fkp(N_r)
-				P_all[:,m] = fkp_mcmc.P_ret.real
-				sigma_all[:,m] = fkp_mcmc.sigma.real
+				P = fkp_mcmc.P_ret.real
+				sigma = fkp_mcmc.sigma.real
+				P_all[:,m] = P
+				sigma_all[:,m] = sigma
 				#print m
 		
 		#print "\nDone.\n"
@@ -277,10 +279,10 @@ def P_theory(q,DATA):
 	timeloopf = time()
 	timeloopt = timeloopf - timeloopi
 	#print("Tempo dos Loops = ", timeloopt)
-	P_av = (1./num_realiz)*np.sum(P_all, axis=1)
+	P_av = P#(1./num_realiz)*np.sum(P_all, axis=1)
 	P_sig = np.sqrt((1./num_realiz)*(np.sum(P_all**2, axis=1))-P_av**2)
 	#P_sig =1.
-	P_avsig = (1./num_realiz)*np.sum(sigma_all, axis=1)
+	P_avsig = sigma#(1./num_realiz)*np.sum(sigma_all, axis=1)
 	os.system('rm ' + powername +"*")
 	return P_av.real, P_sig.real, P_avsig.real, P_dat 
 
@@ -300,63 +302,63 @@ def ln_prior(q):
 	cc = 0
 	pH,pLamb,pCDM,pBaryon,pNu,pW,pWa,pN_s,pTau,pN_bar,pBB,pC2,pk0=0,0,0,0,0,0,0,0,0,0,0,0,0
 	if hubble[0]==True:
-		if 40. < q[cc] < 95.:
+		if hubble[2] < q[cc] < hubble[3]:
 			#pH = ln_gaussian(hubble[1],hubble[2],q[cc])
 			pH=0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_lambda[0]==True:
-		if  0.0 < q[cc] < 1.:
+		if  omega_lambda[2] < q[cc] < omega_lambda[3]:
 			#pLamb = ln_gaussian(omega_lambda[1],omega_lambda[2],q[cc])
 			pLamb = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_cdm[0]==True:
-		if  0.05 < q[cc] < 0.6:
+		if  omega_cdm[2] < q[cc] < omega_cdm[3]:
 			#pCDM = ln_gaussian(omega_cdm[1],omega_cdm[2],q[cc])
 			pCDM = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_baryon[0]==True:
-		if  0.006 < q[cc] < 0.1:
+		if  omega_baryon[2] < q[cc] < omega_baryon[3]:
 			#pBaryon = ln_gaussian(omega_baryon[1],omega_baryon[2],q[cc])
 			pBaryon = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if omega_neutrino[0]==True:
-		if  0. < q[cc] < 0.02:
+		if  omega_neutrino[2] < q[cc] < omega_neutrino[3]:
 			#pNu = ln_gaussian(omega_neutrino[1],omega_neutrino[2],q[cc])
 			pNu = 0.0
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if w[0]==True:
-		if  -4.0 < q[cc] < -0.4533:
+		if  w[2] < q[cc] < w[3]:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pW = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if w_a[0]==True:
-		if  -4.0 < q[cc] < 0.75:
+		if  w_a[2] < q[cc] < w_a[3]:
 			#pW = ln_gaussian(w[1],w[2],q[cc])
 			pWa = 0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if n_s[0]==True:
-		if  0.80 < q[cc] < 1.20:
+		if  n_s[2] < q[cc] < n_s[3]:
 			#pN_s = ln_gaussian(n_s[1],n_s[2],q[cc])
 			pN_s =0.
 		else: 
 			return -np.inf
 		cc = cc + 1
 	if tau[0]==True:
-		if  0.04 < q[cc] < 0.2:
+		if  tau[2] < q[cc] < tau[3]:
 			#pTau = ln_gaussian(tau[1],tau[2],q[cc])
 			pTau =0.
 		else: 
@@ -366,27 +368,27 @@ def ln_prior(q):
 	# Selection function Parameters
 	################################
 	if n_bar0[0]==True:
-		if 0.01 < q[cc] < 12.:
+		if n_bar0[2] < q[cc] < n_bar0[3]:
 			#pN_bar = ln_gaussian(n_bar0[1],n_bar0[2],q[cc])
 			pN_bar = 0.
 		else:
 			return -np.inf
 		cc = cc +1
 	if bb[0]==True:
-		if 1./32 < q[cc] < 1./8:
+		if bb[2] < q[cc] < bb[3]:
 			#pBB = ln_gaussian(bb[1],bb[2],q[cc])
 			pBB = 0.
 		else:
 			return -np.inf	
 		cc = cc +1
 	if c2[0]==True:
-		if 0.1 < q[cc] < 0.3:
+		if c2[2] < q[cc] < c2[3]:
 			pC2 = 0.
 		else:
 			return -np.inf
 		cc = cc + 1
 	if k0[0]==True:
-		if 1.0 < q[cc] < 1.4:
+		if k0[2] < q[cc] < k0[3]:
 			pk0 = 0.
 		else:
 			return -np.inf
@@ -434,43 +436,43 @@ med=([])
 desv=([])
 if hubble[0]==True:
 	med.append(hubble[1])
-	desv.append(hubble[2])
+	desv.append(hubble[1]*0.1)
 if omega_lambda[0]==True:
 	med.append(omega_lambda[1])
-	desv.append(omega_lambda[2])
+	desv.append(omega_lambda[1]*0.1)
 if omega_cdm[0]==True:
 	med.append(omega_cdm[1])
-	desv.append(omega_cdm[2])
+	desv.append(omega_cdm[1]*0.1)
 if omega_baryon[0]==True:
 	med.append(omega_baryon[1])
-	desv.append(omega_baryon[2])
+	desv.append(omega_baryon[1]*0.1)
 if omega_neutrino[0]==True:
 	med.append(omega_neutrino[1])
-	desv.append(omega_neutrino[2])
+	desv.append(omega_neutrino[1]*0.1)
 if w[0]==True:
 	med.append(w[1])
-	desv.append(w[2])
+	desv.append(w[1]*0.1)
 if w_a[0]==True:
 	med.append(w_a[1])
-	desv.append(w_a[2])
+	desv.append(w_a[1]*0.1)
 if n_s[0]==True:
 	med.append(n_s[1])
-	desv.append(n_s[2])
+	desv.append(n_s[1]*0.1)
 if tau[0]==True:
 	med.append(tau[1])
-	desv.append(tau[2])
+	desv.append(tau[1]*0.1)
 if n_bar0[0] == True:
 	med.append(n_bar0[1])
-	desv.append(n_bar0[2])
+	desv.append(n_bar0[1]*0.1)
 if bb[0] == True:
 	med.append(bb[1])
-	desv.append(bb[2])
+	desv.append(bb[1]*0.1)
 if c2[0]==True:
 	med.append(c2[1])
-	desv.append(c2[2])
+	desv.append(c2[1]*0.1)
 if k0[0]==True:
 	med.append(k0[1])
-	desv.append(k0[2])
+	desv.append(k0[1]*0.1)
 med = np.array(med) ;  desv = np.array(desv)
 starting_guesses = np.zeros((nwalkers,ndim))	#this generates random initial steps 
 
@@ -485,10 +487,10 @@ f = open(chain_name_file, "w")
 f.close()
 fstate=open('state.dat','w')
 fstate.close()
-for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=True):
+for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=False):
 	position = np.array(result[0])
 	lnlike   = np.array(result[1])
-    state = np.array(result[2])
+	state = result[2]
 	f = open(chain_name_file, "a")
 	for k in range(nwalkers):
 		for d in range(ndim):
@@ -496,9 +498,9 @@ for result in sampler.sample(starting_guesses, iterations=nsteps, storechain=Tru
 		print(lnlike[k], file=f)
         #f.write("{0:4d} {1:s}\n".format(k, " ".join(str(position[k]))))
 	f.close()
-    fstate=open('state.dat',"a")
-    print(state,file=fstate)
-    fstate.close()
+	fstate=open('state.dat',"a")
+	print(state,file=fstate)
+	fstate.close()
 
 #sampler.run_mcmc(starting_guesses, N=nsteps)
 print("done")
