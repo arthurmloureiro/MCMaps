@@ -48,7 +48,7 @@ nsteps = 1000
 #Burn in - Chain points to be thrown away
 nburn = 20000
 
-#Number of cores to paralelize the chains:
+#Number of cores:
 ncores = 4
 
 ##########################

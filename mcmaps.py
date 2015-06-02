@@ -52,8 +52,8 @@ M = np.asarray([0.5*(np.sign((k_bar[a]+dk_bar[a]/2)-grid.grid_k[:,:,:n_z/2+1])+1
 ################################################################
 #	Assuming a Fiducial selection function n(r) = n_0 exp(-r/b)
 ################################################################
-#n_bar_matrix_fid = selection_func(grid.grid_r, 8.0,0.05)
-n_bar_matrix_fid = selection_func(grid.r_x,grid.r_y,grid.r_z,n_bar0[1],1./16,0.2,1.2)
+n_bar_matrix_fid = selection_func(grid.grid_r, n_bar0[1],bb[1],c2[1])
+#n_bar_matrix_fid = selection_func(grid.r_x,grid.r_y,grid.r_z,n_bar0[1],1./16,0.2,1.2)
 #########################################
 #	FKP of the data to get the P_data(k)
 #########################################
@@ -201,8 +201,8 @@ def P_theory(q,DATA):
 	###########################################
 	# Generating the selection function matrix
 	###########################################
-	#n_bar_matrix = selection_func(grid.grid_r,a,b)
-	n_bar_matrix = selection_func(grid.r_x,grid.r_y,grid.r_z,a,b,cc2,kk0)
+	n_bar_matrix = selection_func(grid.grid_r,a,b,cc2)
+	#n_bar_matrix = selection_func(grid.r_x,grid.r_y,grid.r_z,a,b,cc2,kk0)
 	fkp_mcmc = fkpc.fkp_init(num_bins,n_bar_matrix,bias,cell_size,n_x,n_y,n_z, M)
 	FKP_DATA = fkp_mcmc.fkp(DATA)
 	P_dat = fkp_mcmc.P_ret.real
@@ -451,10 +451,10 @@ if omega_neutrino[0]==True:
 	desv.append(omega_neutrino[1]*0.1)
 if w[0]==True:
 	med.append(w[1])
-	desv.append(w[1]*0.1)
+	desv.append(np.abs(w[1]*0.1))
 if w_a[0]==True:
 	med.append(w_a[1])
-	desv.append(w_a[1]*0.1)
+	desv.append(np.abs(w_a[1]*0.1))
 if n_s[0]==True:
 	med.append(n_s[1])
 	desv.append(n_s[1]*0.1)
