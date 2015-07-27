@@ -76,9 +76,10 @@ class fkp_init(object):
 
         #P_ret = P_ret/counts - self.Pshot #mean power on each bin and shot noise correction
         P_ret = P_ret - self.Pshot
-        for i in range(len(P_ret)):
-        	if np.sign(P_ret[i])==-1:
-        		P_ret[i]=0.0
+        #for i in range(len(P_ret)):
+        #	if np.sign(P_ret[i])==-1:
+        #		P_ret[i]=0.0
+        P_ret[ np.where(P_ret < 0.0) ] = 0.0
         ###############################################################
 
         #print '\nCalculating error bars'

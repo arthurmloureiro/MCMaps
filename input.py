@@ -17,9 +17,9 @@ chain_name = "H0_CDM_w_wa_selec_Gauss128_ALL_NEW"
 cell_size = 10.00
 
 #Number of cells in x,y and z directions. It must be integer.
-n_x = 128
-n_y = 128
-n_z = 128
+n_x = 256
+n_y = 256
+n_z = 256
 
 # Bias
 bias = 1.000

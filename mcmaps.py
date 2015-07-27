@@ -11,8 +11,8 @@ import grid3D as gr
 import sys
 from time import time
 from scipy import interpolate
-import pylab as pl
-from matplotlib import cm
+#import pylab as pl
+#from matplotlib import cm
 import fkp_class as fkpc
 import gauss_pk_class as pkgauss
 import os
